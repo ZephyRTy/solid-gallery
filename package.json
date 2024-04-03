@@ -2,20 +2,268 @@
   "name": "vite-template-solid",
   "version": "0.0.0",
   "description": "",
+  "main": "main.js",
   "scripts": {
     "start": "vite",
-    "dev": "vite",
+    "dev:electron": "electron .",
+    "compile:tailwind": "npx tailwindcss -i ./src/style/input.css -o ./src/style/output.css --watch",
     "build": "vite build",
     "serve": "vite preview"
   },
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.17.8",
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-syntax-top-level-await": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/runtime": "^7.17.8",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@svgr/webpack": "^5.5.0",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.4.1",
+    "@types/lodash": "^4.14.180",
+    "@types/mysql": "^2.15.21",
+    "@types/request": "^2.48.8",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "@wasm-tool/wasm-pack-plugin": "^1.5.0",
+    "babel-jest": "^27.4.2",
+    "babel-loader": "^8.2.3",
+    "babel-plugin-named-asset-import": "^0.3.8",
+    "babel-preset-react-app": "^10.0.1",
+    "cellular-automata": "^2.0.1",
+    "chalk": "^5.1.2",
+    "chrome-launcher": "^0.15.1",
+    "css-minimizer-webpack-plugin": "^5.0.1",
+    "cssnano": "^5.1.14",
+    "electron-builder": "^22.14.13",
+    "electron-devtools-installer": "^3.2.0",
+    "esbuild": "^0.15.12",
+    "esbuild-plugin-sass": "^1.0.1",
+    "esbuild-plugin-svg": "^0.1.0",
+    "esbuild-plugin-svgr": "^1.1.0",
+    "eslint": "^8.18.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-react-app": "^7.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.0",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-webpack-plugin": "^3.1.1",
+    "file-loader": "^6.2.0",
+    "jest": "^27.4.3",
+    "jest-resolve": "^27.4.2",
+    "jest-watch-typeahead": "^1.0.0",
+    "koa": "^2.13.4",
+    "koa-router": "^12.0.0",
+    "koa-static": "^5.0.0",
+    "lighthouse": "^9.6.3",
+    "livereload": "^0.9.3",
+    "mini-css-extract-plugin": "^2.4.5",
+    "node-abi": "^3.28.0",
+    "node-sass": "^7.0.1",
+    "postcss-modules": "^6.0.0",
+    "rollup": "^2.70.1",
+    "sass": "^1.56.1",
+    "sass-loader": "^12.6.0",
     "solid-devtools": "^0.29.2",
+    "tailwindcss": "^3.4.3",
+    "ts-node": "^10.9.1",
     "typescript": "^5.3.3",
+    "typescript-plugin-css-modules": "^3.4.0",
     "vite": "^5.0.11",
-    "vite-plugin-solid": "^2.8.2"
+    "vite-plugin-solid": "^2.8.2",
+    "vite-plugin-solid-svg": "^0.8.1",
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.64.4",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-manifest-plugin": "^4.0.2",
+    "workbox-webpack-plugin": "^6.4.1"
   },
   "dependencies": {
-    "solid-js": "^1.8.11"
+    "@electron/remote": "^2.0.8",
+    "@solidjs/router": "^0.13.1",
+    "@svgr/babel-plugin-remove-jsx-attribute": "^8.0.0",
+    "@svgr/babel-plugin-remove-jsx-empty-expression": "^8.0.0",
+    "@types/node": "^16.11.26",
+    "aws-sdk": "^2.1245.0",
+    "bfj": "^7.0.2",
+    "browserslist": "^4.18.1",
+    "camelcase": "^6.2.1",
+    "case-sensitive-paths-webpack-plugin": "^2.4.0",
+    "cheerio": "^1.0.0-rc.10",
+    "crypto-browserify": "^3.12.0",
+    "dotenv": "^10.0.0",
+    "dotenv-expand": "^5.1.0",
+    "electron": "^17.1.2",
+    "electron-drag": "^2.0.0",
+    "epubjs": "^0.3.93",
+    "fs-extra": "^10.1.0",
+    "html-webpack-plugin": "^5.5.0",
+    "iconv-lite": "^0.6.3",
+    "identity-obj-proxy": "^3.0.0",
+    "immutable": "^4.0.0",
+    "jszip": "^3.10.1",
+    "lodash": "^4.17.21",
+    "mock-aws-s3": "^4.0.2",
+    "nock": "^13.2.9",
+    "node-fetch": "^3.2.4",
+    "postcss": "^8.4.4",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-loader": "^6.2.1",
+    "postcss-normalize": "^10.0.1",
+    "postcss-preset-env": "^7.0.1",
+    "prompts": "^2.4.2",
+    "request": "^2.88.2",
+    "resolve": "^1.20.0",
+    "resolve-url-loader": "^4.0.0",
+    "rxjs": "^7.8.1",
+    "sass-loader": "^12.3.0",
+    "semver": "^7.3.5",
+    "single-line-log": "^1.1.2",
+    "solid-icons": "^1.1.0",
+    "solid-js": "^1.8.11",
+    "source-map-loader": "^3.0.0",
+    "sqlite3": "^5.1.2",
+    "style-loader": "^3.3.1",
+    "terser-webpack-plugin": "^5.2.5",
+    "text-metrics": "^3.0.0"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
+    ],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+    ],
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
+      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
+    "modulePaths": [],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web",
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "web.ts",
+      "ts",
+      "web.tsx",
+      "tsx",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ],
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ],
+    "resetMocks": true
+  },
+  "iohook": {
+    "targets": [
+      "node-83",
+      "electron-101"
+    ],
+    "platforms": [
+      "win32",
+      "darwin",
+      "linux"
+    ],
+    "arches": [
+      "x64",
+      "ia32"
+    ]
+  },
+  "build": {
+    "appId": "com.media.reader",
+    "productName": "YReader",
+    "extraResources": {
+      "from": "public/",
+      "to": "public/"
+    },
+    "extraFiles": {
+      "from": "appConfig/",
+      "to": "appConfig/"
+    },
+    "directories": {
+      "output": "app"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://oss.poooli.com/download/app/desktop/"
+      }
+    ],
+    "files": [
+      "dist/",
+      "main.js",
+      "preload.js"
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/favicon.ico",
+      "uninstallerIcon": "public/photo_uninstall.ico",
+      "installerHeaderIcon": "public/favicon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "name"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "src/resources/icons/icon.icns"
+    },
+    "win": {
+      "icon": "public/favicon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "icon": "src/resources/icons/icon.ico"
+    }
   }
 }
