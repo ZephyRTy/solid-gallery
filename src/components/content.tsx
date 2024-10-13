@@ -1,31 +1,42 @@
-import { Component, createSignal, onMount } from 'solid-js';
-import { IndexPage } from './pages';
-import { NormalImage } from '../types/global';
-import { galleryOperator } from '../utils/data/galleryOperator';
-import { Nav } from './nav';
+import { Component, createMemo, createSignal, onMount } from 'solid-js';
 import { TopBar } from './top-bar';
-import { useSearchParams } from '@solidjs/router';
-import { Sidebar } from './sidebar';
-import { pageSubject } from '../utils/subject';
+import { IndexSidebar } from './sidebar/index-sidebar';
+import { PackSidebar } from './sidebar/pack-sidebar';
+import { Nav } from './nav';
+import { useParams } from '@solidjs/router';
+import signalStore from '../utils/shared-signal';
 
 export const MainContent: Component<any> = (props) => {
-	const [total, setTotal] = createSignal(0);
-	const [searchParams, setSearchParams] = useSearchParams();
-	let bar = null as unknown as HTMLDivElement;
+  const [total, setTotal] = createSignal(0);
+  const params = useParams();
 
-	onMount(() => {
-		pageSubject.subscribe((total) => {
-			setTotal(total);
-		});
-	});
-	return (
-		<>
-			<Sidebar />
-			<div class="main-content">
-				<TopBar />
-				{props.children}
-				<Nav total={total()} />
-			</div>
-		</>
-	);
+  const [showSearch, setShowSearch] = createSignal(true);
+
+  onMount(() => {
+    window.addEventListener('hashchange', (e) => {
+      if (/\/pack\//.test(e.newURL)) {
+        setShowSearch(false);
+      } else {
+        setShowSearch(true);
+      }
+    });
+  });
+
+  const renderSidebar = createMemo(() => {
+    if (params.id) {
+      return <PackSidebar />;
+    } else {
+      return <IndexSidebar />;
+    }
+  });
+  return (
+    <>
+      {renderSidebar()}
+      <div class="main-content">
+        <TopBar showSearch={showSearch()} />
+        {props.children}
+        <Nav total={signalStore.page.get()} />
+      </div>
+    </>
+  );
 };

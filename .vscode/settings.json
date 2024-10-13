@@ -1,0 +1,12 @@
+{
+	"sqltools.connections": [
+		{
+			"previewLimit": 50,
+			"driver": "SQLite",
+			"name": "gallery",
+			"database": "C:\\Users\\Windows\\AppData\\Roaming\\y-reader\\gallery.db"
+		}
+	],
+	"sqltools.useNodeRuntime": true,
+	"svg.preview.background": "editor"
+}
