@@ -7,7 +7,6 @@ import { useParams } from '@solidjs/router';
 import signalStore from '../utils/shared-signal';
 
 export const MainContent: Component<any> = (props) => {
-  const [total, setTotal] = createSignal(0);
   const params = useParams();
 
   const [showSearch, setShowSearch] = createSignal(true);

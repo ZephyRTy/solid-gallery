@@ -14,11 +14,15 @@ export const FolderPage: Component = () => {
   const [packList, setPackList] = createStore([] as unknown as NormalImage[]);
   const [, setDirMap] = createStore({} as DirMap);
   const [searchParams] = useSearchParams();
-  const [currentDir, setCurrentDir] = createStore<IFolderItemProps>({
-    id: -1,
-    title: '',
-    count: 0,
-  });
+  const lastDir = sessionStorage.getItem('currentDir');
+
+  const [currentDir, setCurrentDir] = createStore<IFolderItemProps>(
+    JSON.parse(lastDir || '{}') || {
+      id: -1,
+      title: '',
+      count: 0,
+    },
+  );
 
   createEffect(async () => {
     setPackList([]);

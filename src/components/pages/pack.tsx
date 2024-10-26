@@ -8,13 +8,13 @@ import {
   onMount,
 } from 'solid-js';
 import { galleryOperator } from '../../utils/data/galleryOperator';
-import { compress } from '../../utils/functions/compressThumb';
 import { createStore } from 'solid-js/store';
 import { ImageItem } from '../image-components/image-item';
 import { itemsOfEachPage } from '../../types/constant';
 import { Zoom } from '../image-components/zoom';
 import { NormalImage } from '../../types/global';
 import signalStore from '../../utils/shared-signal';
+import { compressWithMultiThread } from '../../utils/functions/main-thread';
 
 const fs = window.require('fs');
 
@@ -22,7 +22,7 @@ export const Pack: Component = () => {
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const id = params.id;
-  const [imageList, setImageList] = createStore([] as string[]);
+  const [imageList, setImageList] = createSignal([] as string[]);
   const [fileList, setFileList] = createSignal([] as string[]);
   const [srcNum, setSrcNum] = createSignal(-1);
   const [packInfo, setPackInfo] = createStore({} as NormalImage);
@@ -33,42 +33,46 @@ export const Pack: Component = () => {
     window.addEventListener('resize', () => {
       setStyle(`top: ${pageEle?.scrollTop}px;`);
     });
+    let pack: NormalImage | undefined;
+    if (!packInfo.id) {
+      pack = galleryOperator.getPackImages(id);
+      signalStore.title.set(pack?.title || '');
+      setPackInfo(pack || {});
+    }
+    const packPath = pack?.path;
+
+    if (!fs.existsSync(packPath)) {
+      return;
+    }
+    if (fileList().length === 0) {
+      const imagePathList = fs
+        .readdirSync(packPath)
+        .filter(
+          (e) =>
+            (e.endsWith('.jpg') ||
+              e.endsWith('.png') ||
+              e.endsWith('.jpeg') ||
+              e.endsWith('.webp')) &&
+            e !== 'thumb.jpg',
+        )
+        .map((image, index) => {
+          return `${packPath}/${image}`;
+        }) as string[];
+      setFileList(imagePathList);
+    }
   });
 
   createEffect(() => {
     setImageList([]);
-    if (!packInfo.id) {
-      const pack = galleryOperator.getPackImages(id);
-      signalStore.title.set(pack?.title || '');
-      setPackInfo(pack || {});
-    }
     const packPath = packInfo?.path;
     const page = parseInt(searchParams.page || '1');
     if (fs.existsSync(packPath)) {
-      if (fileList().length === 0) {
-        const imagePathList = fs
-          .readdirSync(packPath)
-          .filter(
-            (e) =>
-              (e.endsWith('.jpg') ||
-                e.endsWith('.png') ||
-                e.endsWith('.jpeg') ||
-                e.endsWith('.webp')) &&
-              e !== 'thumb.jpg',
-          )
-          .map((image, index) => {
-            return `${packPath}/${image}`;
-          }) as string[];
-        setFileList(imagePathList);
-      }
       signalStore.page.set(Math.ceil(fileList().length / itemsOfEachPage));
-      fileList()
-        .slice((page - 1) * itemsOfEachPage, page * itemsOfEachPage)
-        .map((path, index) => {
-          compress(path, '', false).then((res) => {
-            setImageList(index, res as string);
-          });
-        });
+      compressWithMultiThread(
+        fileList().slice((page - 1) * itemsOfEachPage, page * itemsOfEachPage),
+      ).then((res) => {
+        setImageList(res);
+      });
     }
   });
 
@@ -103,7 +107,7 @@ export const Pack: Component = () => {
             style={style()}
           />
         </Show>
-        <For each={imageList}>
+        <For each={imageList()}>
           {(e, index) => {
             return (
               <ImageItem

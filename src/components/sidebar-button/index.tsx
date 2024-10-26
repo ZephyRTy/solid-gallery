@@ -83,7 +83,7 @@ export const RouteButton: Component<IRouteBtnProps> = (p) => {
       class={
         'w-12 h-12 flex-center cursor-pointer z-50 side-btn transition-all duration-300 side-btn' +
         (props.active === props.id
-          ? ' fill-blue-600 btn-active '
+          ? ' fill-sky-400 btn-active '
           : ' fill-white')
       }
       classList={{

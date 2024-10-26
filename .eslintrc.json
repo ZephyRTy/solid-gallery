@@ -37,7 +37,7 @@
     "@typescript-eslint/no-var-requires": "off",
 
     "indent": [
-      "error",
+      "off",
       2,
       { "SwitchCase": 1, "ignoredNodes": ["ConditionalExpression"] }
     ],

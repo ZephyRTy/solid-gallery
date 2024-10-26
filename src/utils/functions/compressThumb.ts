@@ -1,5 +1,6 @@
-import { Buffer, path } from './functions';
 const fs = window.require('fs');
+const path = window.require('path');
+const Buffer = window.require('buffer').Buffer;
 let canvas: HTMLCanvasElement = document.createElement('canvas');
 async function imageToCanvas(
   src: string,
@@ -57,7 +58,7 @@ async function canvasToDataURL(
       }
     });
   }
-  await fs.writeFile(path.join(dest, thumbName), dataBuffer, (err: Error) => {
+  await fs.writeFile(path.join(dest, thumbName), dataBuffer, (err) => {
     if (err) {
       console.log('写入图片错误', err);
     }
@@ -73,8 +74,12 @@ export const compress = async (
   thumbName = 'thumb.jpg',
   generate = true,
 ) => {
+  const start = Date.now();
   let size = 0;
   let imgSrc = decodeURIComponent(src);
+  // const buffer = await sharp(imgSrc).resize(500).jpeg().toBuffer();
+  // const base64String = buffer.toString('base64');
+  // return base64String;
   try {
     size = checkImageSize(imgSrc);
   } catch (e: any) {
@@ -95,5 +100,23 @@ export const compress = async (
   } else if (size >= 1024 * 1024 * 0.5) {
     n = 0.7;
   }
-  return await imageToCanvas(imgSrc, canvasToDataURL, n, thumbName, generate);
+  const res = await imageToCanvas(
+    imgSrc,
+    canvasToDataURL,
+    n,
+    thumbName,
+    generate,
+  );
+  return res;
+};
+
+export const compressWithWasm = async (imgPathList: string[]) => {
+  const module = await import('../pkg');
+  // 从imgPathList中获取图片路径，并读取
+  const images_data = imgPathList.map((path) => {
+    const data = fs.readFileSync(path);
+    return data;
+  });
+  console.log('read images done');
+  return module.compress_images_to_base64(images_data);
 };

@@ -8,13 +8,12 @@ export const FileDrop = <
   B extends BasicBookmark,
   C extends BasicFolder,
 >() => {
-  const visible = signalStore.fileDropVisible.get();
   const [result, setResult] = createSignal<string[]>([]);
   let root = null as unknown as HTMLDivElement;
   return (
     <div
       ref={root}
-      class={'file-drop-cover'}
+      class={'file-drop-cover rounded-xl'}
       classList={{ 'visible': signalStore.fileDropVisible.get() }}
       onDragEnter={(e) => {
         e.preventDefault();

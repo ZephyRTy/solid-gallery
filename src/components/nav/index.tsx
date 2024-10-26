@@ -61,12 +61,12 @@ export const Nav: Component<IProps> = (props) => {
 
   return (
     <div
-      class="h-14 flex-center text-slate-600 z-[99999] bg-slate-100"
+      class="h-14 flex-center text-slate-600 z-[9999] bg-slate-100"
       data-role="nav"
     >
       <div class="flex-center gap-3 select-none text-xl">
         <div
-          class="text-center hover:text-blue-600 cursor-pointer min-w-6"
+          class="text-center hover:text-sky-400 cursor-pointer min-w-6"
           onClick={[changePage, 1]}
         >
           <Icon icon={firstPage} size={20} />
@@ -79,9 +79,9 @@ export const Nav: Component<IProps> = (props) => {
           {(e) => {
             return (
               <div
-                class={`text-center hover:text-blue-600 cursor-pointer min-w-6 ${
+                class={`text-center hover:text-sky-400 cursor-pointer min-w-6 ${
                   +(searchParams.page || 1) === e
-                    ? 'font-bold text-blue-600'
+                    ? 'font-bold text-sky-400'
                     : ''
                 }`}
                 onClick={[changePage, e]}
@@ -96,7 +96,7 @@ export const Nav: Component<IProps> = (props) => {
           <Icon icon={nextPage} size={20} />
         </div>
         <div
-          class="text-center hover:text-blue-600 cursor-pointer min-w-6"
+          class="text-center hover:text-sky-400 cursor-pointer min-w-6"
           onClick={[changePage, prop]}
         >
           <Icon icon={lastPage} size={20} />
@@ -117,6 +117,7 @@ export const Nav: Component<IProps> = (props) => {
                 } else if (value > prop.total) {
                   value = prop.total;
                 }
+                (e.target as HTMLInputElement).value = '';
                 changePage(value);
               }
             }}

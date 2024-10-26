@@ -48,6 +48,15 @@ export const FolderList: Component<IProps> = (_props) => {
     });
     setDirMap(arr);
     setInitialDir(arr);
+    if (props.currentDir.id >= 0) {
+      props.setCurrentDir(props.currentDir);
+      setTimeout(() => {
+        document
+          .querySelectorAll('.current-dir')[0]
+          ?.scrollIntoView({ block: 'center' });
+      }, 20);
+      return;
+    }
     props.setCurrentDir(arr[0]);
   });
 
@@ -67,11 +76,12 @@ export const FolderList: Component<IProps> = (_props) => {
               class="folder-item relative h-12 flex items-center justify-between border-b-1 border-slate-300 "
               classList={{
                 'current-dir': item.id === props.currentDir.id,
-                'hover:text-blue-600 cursor-pointer':
+                'hover:text-sky-400 cursor-pointer':
                   item.id !== props.currentDir.id,
               }}
               onClick={() => {
                 setSearchParams({ search: null });
+                sessionStorage.setItem('currentDir', JSON.stringify(item));
                 props.setCurrentDir(item);
               }}
             >
@@ -83,7 +93,7 @@ export const FolderList: Component<IProps> = (_props) => {
                   left: '5px',
                   transform: 'translateY(-50%)',
                 }}
-                className="absolute left-0 top-0 h-full flex-center fill-blue-600 transition-opacity duration-300"
+                className="absolute left-0 top-0 h-full flex-center fill-sky-400 transition-opacity duration-300"
                 classList={{
                   'opacity-0': item.id !== props.currentDir.id,
                 }}

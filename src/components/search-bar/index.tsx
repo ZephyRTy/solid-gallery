@@ -3,6 +3,8 @@ import { Icon } from '../icon';
 import SearchIcon from '../../icon/search.svg';
 import { useSearchParams } from '@solidjs/router';
 
+const { ipcRenderer } = window.require('electron');
+
 export const SearchBar: Component = () => {
   const [focus, setFocus] = createSignal(false);
   const [, setSearchParams] = useSearchParams();
@@ -24,7 +26,12 @@ export const SearchBar: Component = () => {
 
   const bindEnter = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
-      setSearchParams({ search: input?.value });
+      const value = input?.value;
+      if (value === 'console' && e.ctrlKey) {
+        ipcRenderer.send('console');
+        return;
+      }
+      setSearchParams({ search: value });
       input!.value = '';
     }
   };

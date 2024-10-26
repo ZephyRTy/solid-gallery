@@ -41,6 +41,7 @@ function createWindow() {
     transparent: true,
     webPreferences: {
       nodeIntegration: true,
+      nodeIntegrationInWorker: true,
       contextIsolation: false,
       enableRemoteModule: true,
       webSecurity: false,

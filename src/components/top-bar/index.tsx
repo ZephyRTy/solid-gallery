@@ -19,7 +19,7 @@ export const TopBar: Component<{ showSearch: boolean }> = (props) => {
   };
 
   return (
-    <div class="h-16 flex-center relative top-bar z-[99999] bg-slate-100">
+    <div class="h-16 flex-center relative top-bar z-[9999] bg-slate-100">
       <Show when={props.showSearch}>
         <SearchBar />
       </Show>

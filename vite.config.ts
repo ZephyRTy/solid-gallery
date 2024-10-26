@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import solidSvg from 'vite-plugin-solid-svg';
-// import devtools from 'solid-devtools/vite';
-
+import wasm from 'vite-plugin-wasm';
 export default defineConfig({
   base: '',
   plugins: [
@@ -11,6 +10,7 @@ export default defineConfig({
     For more info see https://github.com/thetarnav/solid-devtools/tree/main/packages/extension#readme
     */
     // devtools(),
+    wasm(),
     solidPlugin(),
     solidSvg({
       defaultAsComponent: true,
@@ -21,5 +21,7 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    minify: 'terser',
+    rollupOptions: { external: ['sharp'] },
   },
 });

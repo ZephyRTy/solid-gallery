@@ -30,7 +30,7 @@ export const PackItem: Component<IProps> = (props) => {
   const [prop, left] = splitProps(props, ['src', 'info']);
   return (
     <div
-      class="image-item [&:hover_img]:scale-110 [&:hover]:text-blue-500"
+      class="image-item [&:hover_img]:scale-110 [&:hover]:text-sky-500"
       onClick={() => {
         if (err()) return;
         sessionStorage.setItem('from', location.href);
@@ -48,10 +48,11 @@ export const PackItem: Component<IProps> = (props) => {
       </div>
       <div class="flex-center h-1/6 w-full mx-4  border-t-1 border-slate-300">
         <span
-          class="text-sm text-center leading-6
-					select-none overflow-visible "
+          class="block w-40 text-sm text-center leading-6
+					select-none whitespace-nowrap overflow-hidden text-ellipsis "
+          title={props.info.title}
         >
-          {shortTitle(props.info.title)}
+          {props.info.title}
         </span>
       </div>
       <Icon
