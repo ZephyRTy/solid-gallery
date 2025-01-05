@@ -4,16 +4,16 @@
 import {
   ImageBookmark,
   ImageDirectory,
+  InsertResult,
   Mode,
   NormalImage,
 } from '../../types/global';
-import { ImgWaterfallCache } from '../ImgWaterFallCache';
 import { compress } from '../functions/compressThumb';
 import { endsWith, rmDir } from '../functions/functions';
 import {
   SqliteOperatorForGallery,
   sqliteOperatorForGallery,
-} from '../request/sqliteOperatorForGallery';
+} from '../sql/sqliteOperatorForGallery';
 import { DataOperator } from './DataOperator';
 const fs = window.require('fs');
 const isImage = (v: string) =>
@@ -22,6 +22,7 @@ const isValidImage = (v: string) => {
   const stat = fs.statSync(v);
   return stat.size > 1024;
 };
+
 // 对文件进行操作，可与数据进行交互
 export class GalleryOperator extends DataOperator<
   NormalImage,
@@ -54,7 +55,6 @@ export class GalleryOperator extends DataOperator<
     if (e.stared) {
       this.starModel.update();
     }
-    ImgWaterfallCache.getInstance().updateCover(e);
   }
 
   async addNewPack(
@@ -88,7 +88,7 @@ export class GalleryOperator extends DataOperator<
       this.refresh();
       return true;
     }
-    const result = [] as string[];
+    const result = [] as InsertResult[];
     let successCount = 0;
     const success = [] as Promise<any>[];
     data.forEach((e, i) => {
@@ -99,7 +99,10 @@ export class GalleryOperator extends DataOperator<
         e.cover || fs.readdirSync(e.path).find((v: string) => isImage(v));
       if (!cover) {
         console.warn(e.title, 'no image found');
-        result.push(`${e.title}:::未找到图片`);
+        result.push({
+          title: e.title,
+          type: '未找到图片',
+        });
         return;
       }
       const newPack = {
@@ -113,7 +116,10 @@ export class GalleryOperator extends DataOperator<
         const files = fs.readdirSync(e.path);
         const valid = files.find((v: string) => isValidImage(e.path + v));
         if (!valid) {
-          result.push(`${e.title}:::图片无效`);
+          result.push({
+            title: e.title,
+            type: '图片无效',
+          });
           return;
         }
         newPack.cover = '/' + valid || '';
@@ -121,9 +127,16 @@ export class GalleryOperator extends DataOperator<
       success.push(
         this.sql.insertPack(newPack, false).then((res) => {
           if (!res) {
-            result.push(`${e.title}:::重复`);
+            result.push({
+              title: e.title,
+              type: '重复',
+            });
           } else {
             successCount++;
+            result.push({
+              title: e.title,
+              type: '成功',
+            });
           }
           compress(img).then(() => {
             if (i === data.length - 1 && successCount) {
@@ -135,10 +148,6 @@ export class GalleryOperator extends DataOperator<
       );
     });
     return Promise.all(success).then(() => {
-      if (successCount) {
-        result.unshift(`${successCount}个图包:::成功`);
-      }
-
       return result;
     });
   }
@@ -161,27 +170,6 @@ export class GalleryOperator extends DataOperator<
       return res;
     }
     return -1;
-  }
-  //获取当前要打开的页面
-  override packWillOpen(packId: number, change: boolean = true) {
-    this.switchMode(Mode.Detail);
-    let res: NormalImage = null as any;
-    if (this.mode === Mode.Bookmark) {
-      res = this.bookmarks.find(
-        (v) => v.id === packId,
-      )! as unknown as NormalImage;
-    } else {
-      res = this.currentPacks.find((v) => v.id === packId)!;
-    }
-    if (res) {
-      window.sessionStorage.setItem('current', JSON.stringify(res));
-    } else {
-      res = JSON.parse(window.sessionStorage.getItem('current')!);
-    }
-    if (change) {
-      this.titleWillUpdate(res?.title);
-    }
-    return res;
   }
 
   getPackImages(id: string) {

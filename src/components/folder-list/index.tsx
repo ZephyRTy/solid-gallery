@@ -5,9 +5,13 @@ import { useSearchParams } from '@solidjs/router';
 import { debounce } from '../../utils/functions/functions';
 import FolderOpen from '../../icon/folder-open.svg';
 import { Icon } from '../icon';
+import './index.less';
+import { fuzzyMatch } from '../../utils/functions/fuzzy-match';
 interface IProps {
   currentDir: IFolderItemProps;
+  default?: boolean;
   setCurrentDir: (dir: IFolderItemProps) => void;
+  handleClick?: (current: IFolderItemProps) => void;
 }
 
 export interface IFolderItemProps {
@@ -17,16 +21,44 @@ export interface IFolderItemProps {
 }
 export const FolderList: Component<IProps> = (_props) => {
   const [dirMap, setDirMap] = createStore<IFolderItemProps[]>([]);
-  const [props] = splitProps(_props, ['currentDir', 'setCurrentDir']);
+  const [props] = splitProps(_props, [
+    'currentDir',
+    'setCurrentDir',
+    'handleClick',
+    'default',
+  ]);
   const [initialDir, setInitialDir] = createStore<IFolderItemProps[]>([]);
-
   const [, setSearchParams] = useSearchParams();
+  const getDirMap = createMemo(() => {
+    const arr = Array.from(galleryOperator.getDirMap())
+      .map(([key, value]) => {
+        return {
+          id: +key,
+          title: value.title,
+          count: value.count,
+          updateTime: value.updateTime,
+        };
+      })
+      .sort((a, b) => b.updateTime - a.updateTime);
+    setDirMap(arr);
+    setInitialDir(arr);
+    if (props.currentDir.id >= 0) {
+      props.setCurrentDir(props.currentDir);
+      setTimeout(() => {
+        document
+          .querySelectorAll('.current-dir')[0]
+          ?.scrollIntoView({ block: 'center' });
+      }, 20);
+    }
+    return arr;
+  });
 
   const handleSearch = createMemo(() => {
     return debounce((e) => {
+      props.setCurrentDir({ id: -1, title: '', count: 0 });
       const value = (e.target as HTMLInputElement).value;
       if (value) {
-        setDirMap(initialDir.filter((item) => item.title.includes(value)));
+        setDirMap(initialDir.filter((item) => fuzzyMatch(value, item.title)));
       } else {
         setDirMap(initialDir);
         setTimeout(() => {
@@ -39,26 +71,26 @@ export const FolderList: Component<IProps> = (_props) => {
   });
 
   onMount(() => {
-    const arr = Array.from(galleryOperator.getDirMap()).map(([key, value]) => {
-      return {
-        id: +key,
-        title: value.title,
-        count: value.count,
-      };
-    });
-    setDirMap(arr);
-    setInitialDir(arr);
-    if (props.currentDir.id >= 0) {
-      props.setCurrentDir(props.currentDir);
-      setTimeout(() => {
-        document
-          .querySelectorAll('.current-dir')[0]
-          ?.scrollIntoView({ block: 'center' });
-      }, 20);
+    const arr = getDirMap();
+    const lastDir = JSON.parse(sessionStorage.getItem('currentDir') || '{}');
+    // if (props.default) {
+    //   props.setCurrentDir(arr[0]);
+    // }
+    if (lastDir.id >= 0) {
+      props.setCurrentDir(lastDir);
       return;
     }
     props.setCurrentDir(arr[0]);
   });
+
+  // createEffect(() => {
+  //   signalStore.refresh();
+  //   const arr = getDirMap();
+  //   const item = arr!.find((item) => item.id === props.currentDir.id);
+  //   const index = dirMap.findIndex((item) => item.id === props.currentDir.id);
+  //   setDirMap(index, { ...item });
+  //   console.log('currentDir');
+  // });
 
   return (
     <div class="folder-list-wrapper relative">
@@ -73,16 +105,15 @@ export const FolderList: Component<IProps> = (_props) => {
         <For each={dirMap}>
           {(item) => (
             <div
-              class="folder-item relative h-12 flex items-center justify-between border-b-1 border-slate-300 "
+              class="folder-list-item relative h-12 flex items-center justify-between border-b-1 border-slate-300 "
               classList={{
                 'current-dir': item.id === props.currentDir.id,
                 'hover:text-sky-400 cursor-pointer':
                   item.id !== props.currentDir.id,
               }}
               onClick={() => {
-                setSearchParams({ search: null });
-                sessionStorage.setItem('currentDir', JSON.stringify(item));
                 props.setCurrentDir(item);
+                props.handleClick?.(item);
               }}
             >
               <Icon
@@ -99,7 +130,7 @@ export const FolderList: Component<IProps> = (_props) => {
                 }}
               />
               <span>{item.title}</span>
-              <span class="folder-item-count">{item.count}</span>
+              <span class="folder-count">{item.count}</span>
             </div>
           )}
         </For>

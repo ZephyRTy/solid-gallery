@@ -1,8 +1,8 @@
-import { Component, splitProps } from 'solid-js';
+import { Component, mergeProps, splitProps } from 'solid-js';
 
 interface IProps {
   icon: string;
-  size: number;
+  size?: number;
   class?: string;
   style?: Record<string | symbol, string | number>;
   className?: string;
@@ -10,6 +10,7 @@ interface IProps {
   onClick?: [(...args) => void, args: any] | ((...args) => void);
 }
 export const Icon: Component<IProps> = (properties) => {
+  properties = mergeProps({ size: 24 }, properties);
   const [props] = splitProps(properties, [
     'icon',
     'size',

@@ -2,7 +2,8 @@ import { Component, createSignal } from 'solid-js';
 import { Icon } from '../icon';
 import SearchIcon from '../../icon/search.svg';
 import { useSearchParams } from '@solidjs/router';
-
+import './index.less';
+import signalStore from '../../utils/shared-signal';
 const { ipcRenderer } = window.require('electron');
 
 export const SearchBar: Component = () => {
@@ -26,6 +27,7 @@ export const SearchBar: Component = () => {
 
   const bindEnter = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
+      signalStore.selectedPacks.set([]);
       const value = input?.value;
       if (value === 'console' && e.ctrlKey) {
         ipcRenderer.send('console');

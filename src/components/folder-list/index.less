@@ -1,0 +1,48 @@
+.folder-list-item {
+  padding: 0 10px;
+  transition: padding 0.3s;
+  font-weight: 500;
+
+  span {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .folder-count {
+    font-family: DIN;
+    font-size: 25px;
+  }
+  &.current-dir {
+    padding-left: 30px;
+  }
+}
+
+.folder-list {
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgba(75, 75, 75, 0.2);
+    background: #ededed;
+  }
+}
+
+.scrollbar {
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgba(75, 75, 75, 0.2);
+    background: #ededed;
+  }
+}

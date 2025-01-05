@@ -11,6 +11,7 @@
     "types": ["vite/client", "vite-plugin-solid-svg/types-component-solid"],
     "noEmit": true,
     "isolatedModules": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "experimentalDecorators": true
   }
 }

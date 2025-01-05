@@ -1,0 +1,16 @@
+.page-toolbar {
+  & > * {
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+  }
+}
+
+.page-toolbar-wrapper {
+  height: 30px;
+  overflow-y: hidden;
+  transition: height 0.3s;
+  &.page-toolbar-unfold {
+    height: 100px;
+  }
+}

@@ -10,7 +10,9 @@ import { ActiveInfo, RouteButton } from '../sidebar-button';
 export const IndexSidebar: Component = () => {
   const params = useParams();
   const [active, setActive] = createSignal({
-    active: params.mode || Mode.Normal,
+    active: location.href.includes('#/ShowDirs')
+      ? Mode.Folder
+      : params.mode || Mode.Normal,
     position: 0,
     el: null,
   } as ActiveInfo);

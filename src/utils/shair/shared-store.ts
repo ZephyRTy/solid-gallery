@@ -1,7 +1,7 @@
 import { createStore } from 'solid-js/store';
-import { VirtualStore } from './type';
+import { StoreOperations, VirtualStore } from './type';
 import { Memo } from './memo';
-import { getter } from './utils';
+import { getter as getValue } from './utils';
 
 export const createSharedStore = <T extends NonNullable<object>>(
   initialState: T,
@@ -12,10 +12,10 @@ export const createSharedStore = <T extends NonNullable<object>>(
   const handler = {
     get: function (obj, prop: string) {
       const args = [...path];
-      const current = getter(store, [...args]);
+      const current = getValue(store, [...args]);
       if (prop === 'get') {
         path = [];
-        const fn = memo.getter(() => getter(store, [...args]), args);
+        const fn = memo.getter(() => getValue(store, [...args]), args);
         return fn;
       } else if (prop === 'set') {
         return (value: any) => {
@@ -32,13 +32,14 @@ export const createSharedStore = <T extends NonNullable<object>>(
       if (prop in obj) {
         return obj[prop];
       }
-      const newProp = new Proxy({}, handler);
+      const newProp = new Proxy(() => {}, handler);
+      obj[prop] = newProp;
       return newProp;
     },
-    set: function (_obj, prop, value) {
-      path.push(prop);
-      (setStore as any).apply(null, [...path, value] as any);
-      return true;
+
+    apply: function (_obj, _prop) {
+      const v = getValue(store, [...path]);
+      return v;
     },
   };
 
@@ -53,7 +54,8 @@ export const createSharedStore = <T extends NonNullable<object>>(
           (setStore as any)((store as Array<any>).length, value);
         };
       }
-      const newProp = new Proxy({}, handler);
+      const newProp = new Proxy(() => {}, handler);
+      obj[prop] = newProp;
       return newProp;
     },
 
@@ -66,8 +68,9 @@ export const createSharedStore = <T extends NonNullable<object>>(
 
   return new Proxy(
     {
-      value: store,
+      get: () => store,
+      pureSet: setStore,
     },
     topHandler,
-  ) as VirtualStore<T> & { value: T };
+  ) as VirtualStore<T> & StoreOperations<T>;
 };

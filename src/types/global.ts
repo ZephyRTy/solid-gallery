@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+import { JSX } from 'solid-js';
 import { GalleryOperator } from '../utils/data/galleryOperator';
-import { RequestOperator } from '../utils/request/requestOperator';
+import { RequestOperator } from '../utils/sql/requestOperator';
 
 export type fileStatus = 0 | 1 | 2 | 3;
 export interface BasicData {
@@ -38,6 +39,7 @@ export interface DirectoryList {
 export interface DirectoryInfo {
   title: string;
   count: number;
+  updateTime: number;
 }
 export interface ImageComponent<T extends NormalImage | ImageDirectory> {
   (props: {
@@ -70,7 +72,7 @@ export enum Mode {
   DirContent = 'InDir', //文件夹内部
   Folder = 'ShowDirs',
   Detail = 'Detail',
-  Search = 'Search'
+  Search = 'Search',
 }
 
 export interface TextLine {
@@ -155,3 +157,8 @@ export interface paragraph {
 export type TextComment = TextLocation & { comment: string; timestamp: string };
 
 export type DirMap = Map<string, DirectoryInfo>;
+
+export interface InsertResult {
+  title: string;
+  type: '成功' | '重复' | '未找到图片' | '图片无效';
+}

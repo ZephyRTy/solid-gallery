@@ -13,6 +13,7 @@ export const MainContent: Component<any> = (props) => {
 
   onMount(() => {
     window.addEventListener('hashchange', (e) => {
+      signalStore.isManaging.set(false);
       if (/\/pack\//.test(e.newURL)) {
         setShowSearch(false);
       } else {
@@ -34,7 +35,7 @@ export const MainContent: Component<any> = (props) => {
       <div class="main-content">
         <TopBar showSearch={showSearch()} />
         {props.children}
-        <Nav total={signalStore.page.get()} />
+        <Nav total={signalStore.page()} />
       </div>
     </>
   );

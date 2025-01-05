@@ -7,7 +7,7 @@ import {
   ImageBookmark,
   ImageDirectory,
   Mode,
-  NormalImage
+  NormalImage,
 } from '../../types/global';
 import { formatDate } from '../functions/functions';
 import { getAllDrive } from '../functions/process';
@@ -37,7 +37,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
       os.userInfo().homedir,
       'AppData',
       'Roaming',
-      'y-Reader'
+      'y-Reader',
     );
     if (!fs.existsSync(dbPath)) {
       fs.mkdirSync(dbPath);
@@ -86,7 +86,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
             cover: v.cover ?? v.dir_cover,
             stared: Boolean(v.stared ?? v.dir_stared),
             parent: v.parent,
-            reg: v.reg
+            reg: v.reg,
           });
         }
       });
@@ -98,7 +98,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
   async select<Pack = NormalImage, Folder = ImageDirectory>(
     sqlParam: number[],
     mode: Mode,
-    options?: Record<string, string>
+    options?: Record<string, string>,
   ): Promise<Pack[] | Folder[]> {
     if (mode === Mode.Normal && sqlParam.length !== 2) {
       throw new Error('sqlParam is not correct');
@@ -120,7 +120,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
         } where ${this.getDriverSql()} stared = 1 order by id desc`;
         break;
       case Mode.DirContent:
-        dirId = options?.dirId!;
+        dirId = options!.dirId;
         sql = `select * from ${
           this.mainTableName
         } where ${this.getDriverSql()} parent = ${dirId} order by id desc`;
@@ -166,9 +166,9 @@ export class SqliteOperatorForGallery implements RequestOperator {
                   url: v.url,
                   timeStamp: formatDate(new Date(v.timeStamp).toString()),
                   stared: Boolean(v.stared),
-                  reg: v.reg
+                  reg: v.reg,
                 } as unknown as Pack;
-              })
+              }),
             );
             return;
           } else if (mode === Mode.Folder) {
@@ -179,9 +179,9 @@ export class SqliteOperatorForGallery implements RequestOperator {
                   title: v.dir_title,
                   cover: v.path + v.cover,
                   timeStamp:
-                    formatDate(new Date(v.update_time).toString()) ?? ''
+                    formatDate(new Date(v.update_time).toString()) ?? '',
                 } as unknown as Folder;
-              })
+              }),
             );
             return;
           }
@@ -194,9 +194,9 @@ export class SqliteOperatorForGallery implements RequestOperator {
                 cover: v.cover ?? v.dir_cover,
                 stared: Boolean(v.stared ?? v.dir_stared),
                 parent: v.parent,
-                reg: v.reg
+                reg: v.reg,
               } as unknown as Pack;
-            })
+            }),
           );
         }
       });
@@ -227,7 +227,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
   async search<T extends BasicData>(
     sqlParam: string,
     mode: Mode,
-    reg: boolean
+    reg: boolean,
   ): Promise<T[]> {
     let sql = '';
     let dirId = '';
@@ -281,9 +281,9 @@ export class SqliteOperatorForGallery implements RequestOperator {
                 stared: Boolean(v.stared ?? v.dir_stared),
                 parent: v.parent,
                 reg: v.reg,
-                timeStamp: v.update_time
+                timeStamp: v.update_time,
               } as unknown as T;
-            })
+            }),
           );
         }
       });
@@ -306,34 +306,44 @@ export class SqliteOperatorForGallery implements RequestOperator {
     dirId: number,
     packId: number,
     status: 0 | 1,
-    cover?: string
+    cover?: string,
   ) {
     let sql = `update ${this.mainTableName} set  parent = ? where id = ?`;
     let sqlParam = [status ? dirId : null, packId] as [number | null, number];
-    if (cover) {
-      if (status) {
-        this.db.run(
-          'update directory set cover_id = ?, update_time = CURRENT_TIMESTAMP where  dir_id = ?',
-          [packId, dirId],
-          (err: any) => {
-            if (err) {
-              console.error(err);
-            }
+    if (status) {
+      this.db.run(
+        'update directory set cover_id = ?, update_time = CURRENT_TIMESTAMP where  dir_id = ?',
+        [packId, dirId],
+        (err: any) => {
+          if (err) {
+            console.error(err);
           }
-        );
-      } else {
-        this.db.run(
-          `update directory, (select id, title, parent from pack_list where id in 
-						(select max(id) from pack_list where parent > 0 group by parent having id != ?)) as t
-						set cover_id = t.id where  dir_id = ? and t.parent = dir_id`,
-          [packId, dirId],
-          (err: any) => {
-            if (err) {
-              console.error(err);
-            }
+        },
+      );
+    } else {
+      this.db.run(
+        `WITH t AS (
+            SELECT id, title, parent
+            FROM pack_list
+            WHERE id IN (
+              SELECT max(id)
+              FROM pack_list
+              WHERE parent > 0
+              GROUP BY parent
+              HAVING id != ?
+            )
+          )
+          UPDATE directory
+          SET cover_id = t.id
+          FROM t
+          WHERE directory.dir_id = ? AND t.parent = directory.dir_id;`,
+        [packId, dirId],
+        (err: any) => {
+          if (err) {
+            console.error(err);
           }
-        );
-      }
+        },
+      );
     }
     return new Promise((resolve, reject) => {
       this.db.run(sql, sqlParam, (err: any, res: any) => {
@@ -346,7 +356,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
   }
 
   mapDir(): Promise<Map<string, DirectoryInfo>> {
-    let sql = `select dir_id as id, dir_title as title , count(parent) as count from directory left outer join ${this.mainTableName} on(dir_id = parent )
+    let sql = `select dir_id as id, dir_title as title , count(parent) as count, update_time as updateTime from directory left outer join ${this.mainTableName} on (dir_id = parent )
 			  group by dir_id ;`;
     return new Promise((resolve, reject) => {
       this.db.all(sql, (err: any, result: any) => {
@@ -357,7 +367,8 @@ export class SqliteOperatorForGallery implements RequestOperator {
         result.forEach((v: any) => {
           map.set(v.id.toString(), {
             count: v.count,
-            title: v.title
+            title: v.title,
+            updateTime: new Date(v.updateTime).getTime(),
           });
         });
         resolve(map);
@@ -368,7 +379,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
   insertDir(newDir: { dir_title: string }): Promise<number | null> {
     let stmt = this.db.prepare(
       'insert into directory (dir_title, update_time) values (?,?)',
-      [newDir.dir_title, formatDate(new Date())]
+      [newDir.dir_title, formatDate(new Date())],
     );
     return new Promise((resolve, reject) => {
       stmt.run((err: any) => {
@@ -388,7 +399,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
       path: string;
       cover?: string;
     },
-    duplicate: boolean = false
+    duplicate: boolean = false,
   ) {
     const { title, stared, path, cover } = newPack;
     let sql =
@@ -410,7 +421,7 @@ export class SqliteOperatorForGallery implements RequestOperator {
   updateGalleryBookmark(
     bookmark: ImageBookmark,
     marked: boolean,
-    mode: 'insert' | 'update'
+    mode: 'insert' | 'update',
   ) {
     let sql = marked
       ? mode === 'insert'
@@ -430,14 +441,14 @@ export class SqliteOperatorForGallery implements RequestOperator {
             reject(err);
           }
           resolve(res);
-        }
+        },
       );
     });
   }
   async updateBookmarkOfBook(
     _bookmark: BookmarkOfBook,
     _marked: boolean,
-    _mode: 'insert' | 'update'
+    _mode: 'insert' | 'update',
   ) {}
 
   updateReg(id: number, reg: string) {
@@ -481,10 +492,6 @@ export class SqliteOperatorForGallery implements RequestOperator {
   }
 
   changePackCover(packID: number, cover: string) {
-    // assert(
-    // 	this.mainTableName === 'pack_list',
-    // 	'only pack_list can update cover'
-    // );
     let sql = `update ${this.mainTableName} set cover = ? where id = ?`;
     return new Promise((resolve, reject) => {
       this.db.run(sql, [cover, packID], (err: any, res: any) => {

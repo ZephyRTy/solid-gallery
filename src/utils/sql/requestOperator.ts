@@ -4,28 +4,28 @@ import {
   BookmarkOfBook,
   DirectoryInfo,
   ImageBookmark,
-  Mode
+  Mode,
 } from '../../types/global';
 
 export interface RequestOperator {
   select<A, B>(
     sqlParam: number[],
     mode: Mode,
-    options?: Record<string, any>
+    options?: Record<string, any>,
   ): Promise<any[]>;
   getCount(): Promise<number>;
   end(): void;
   search<T extends BasicData>(
     sqlParam: string,
     mode: Mode,
-    reg: boolean
+    reg: boolean,
   ): Promise<T[]>;
   updateStar<T extends BasicData>(data: T): Promise<unknown>;
   updateDir(
     dirId: number,
     packId: number,
     status: 0 | 1,
-    cover?: string
+    cover?: string,
   ): Promise<unknown>;
   mapDir(): Promise<Map<string, DirectoryInfo>>;
   insertDir(newDir: any): Promise<number | null>;
@@ -36,7 +36,7 @@ export interface RequestOperator {
       path: string;
       cover?: string;
     },
-    duplicate: boolean
+    duplicate: boolean,
   ): Promise<unknown>;
   delete(packID: number): Promise<unknown>;
   checkExternalDriver(): Promise<boolean>;
@@ -46,12 +46,12 @@ export interface RequestOperator {
   updateGalleryBookmark(
     bookmark: ImageBookmark,
     marked: boolean,
-    mode: 'insert' | 'update'
+    mode: 'insert' | 'update',
   ): Promise<unknown>;
   updateBookmarkOfBook(
     bookmark: BookmarkOfBook,
     marked: boolean,
-    mode: 'insert' | 'update'
+    mode: 'insert' | 'update',
   ): Promise<unknown>;
   updateReg(id: number, reg: string): Promise<unknown>;
   clearBookmark(): Promise<unknown>;

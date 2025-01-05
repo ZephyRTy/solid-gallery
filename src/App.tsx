@@ -1,6 +1,5 @@
 import type { Component } from 'solid-js';
 import './style/output.css';
-import './style/index.less';
 import { MainContainer } from './components/main';
 
 const App: Component = () => {

@@ -21,7 +21,6 @@
     "@typescript-eslint/parser": "^7.0.0",
     "electron": "^30.5.1",
     "electron-builder": "^25.1.8",
-    "electron-packager": "^17.1.2",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -44,8 +43,7 @@
     "@electron/remote": "^2.0.8",
     "@solidjs/router": "^0.13.1",
     "@types/node": "^18.0.0",
-    "compress_image_to_base64": "file:./src/utils/pkg",
-    "shairjs": "^1.0.0-alpha.3",
+    "request": "^2.88.2",
     "sharp": "^0.33.5",
     "solid-js": "^1.8.11",
     "sqlite3": "^5.1.2"
@@ -77,6 +75,9 @@
       "from": "public/",
       "to": "public/"
     },
+    "extraFiles": [
+      "src/assets/**/*"
+    ],
     "directories": {
       "output": "app"
     },

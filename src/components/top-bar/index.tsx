@@ -23,7 +23,7 @@ export const TopBar: Component<{ showSearch: boolean }> = (props) => {
       <Show when={props.showSearch}>
         <SearchBar />
       </Show>
-      <div class="title">{signalStore.title.get()}</div>
+      <div class="title">{signalStore.title()}</div>
       <div class="absolute right-4 cursor-pointer no-drag flex-center gap-2">
         <Icon
           icon={min}

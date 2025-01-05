@@ -110,13 +110,13 @@ export const compress = async (
   return res;
 };
 
-export const compressWithWasm = async (imgPathList: string[]) => {
-  const module = await import('../pkg');
-  // 从imgPathList中获取图片路径，并读取
-  const images_data = imgPathList.map((path) => {
-    const data = fs.readFileSync(path);
-    return data;
-  });
-  console.log('read images done');
-  return module.compress_images_to_base64(images_data);
-};
+// export const compressWithWasm = async (imgPathList: string[]) => {
+//   const module = await import('../pkg');
+//   // 从imgPathList中获取图片路径，并读取
+//   const images_data = imgPathList.map((path) => {
+//     const data = fs.readFileSync(path);
+//     return data;
+//   });
+//   console.log('read images done');
+//   return module.compress_images_to_base64(images_data);
+// };

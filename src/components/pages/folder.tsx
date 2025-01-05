@@ -1,21 +1,21 @@
-import { Component, For, createEffect, onMount } from 'solid-js';
+import { Component, For, createEffect } from 'solid-js';
 import { galleryOperator } from '../../utils/data/galleryOperator';
 import { DirMap, Mode, NormalImage } from '../../types/global';
-import { PackItem } from '../image-components/pack-item';
+import { PackItem } from '../image-components/index-item';
 import { createStore } from 'solid-js/store';
 import { useSearchParams } from '@solidjs/router';
 import { itemsOfEachPage } from '../../types/constant';
 import { FolderList, IFolderItemProps } from '../folder-list';
 import signalStore from '../../utils/shared-signal';
-
+const path = window.require('path');
 let timer: NodeJS.Timeout;
 export const FolderPage: Component = () => {
   let colRef = null as unknown as HTMLDivElement;
+  let scrollEle = null as unknown as HTMLDivElement;
   const [packList, setPackList] = createStore([] as unknown as NormalImage[]);
   const [, setDirMap] = createStore({} as DirMap);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const lastDir = sessionStorage.getItem('currentDir');
-
   const [currentDir, setCurrentDir] = createStore<IFolderItemProps>(
     JSON.parse(lastDir || '{}') || {
       id: -1,
@@ -27,14 +27,12 @@ export const FolderPage: Component = () => {
   createEffect(async () => {
     setPackList([]);
     colRef?.scrollTo(0, 0);
-  });
-
-  onMount(() => {
     setDirMap(galleryOperator.getDirMap());
   });
 
   createEffect(async () => {
     if (currentDir) {
+      signalStore.refresh();
       const search = searchParams.search;
       let title = currentDir.title;
       if (search) {
@@ -53,6 +51,9 @@ export const FolderPage: Component = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
         setPackList(list);
+        if (scrollEle) {
+          scrollEle.scrollTop = 0;
+        }
       }, 300);
       signalStore.page.set(Math.ceil(total / itemsOfEachPage));
     }
@@ -60,13 +61,24 @@ export const FolderPage: Component = () => {
 
   return (
     <div class="folder-page h-full p-0 pr-5" ref={colRef}>
-      <FolderList currentDir={currentDir} setCurrentDir={setCurrentDir} />
-      <div class="overflow-auto flex-1 flex flex-wrap h-full gap-7 py-5">
+      <FolderList
+        currentDir={currentDir}
+        setCurrentDir={setCurrentDir}
+        handleClick={(item) => {
+          setSearchParams({ search: null, page: 1 });
+          sessionStorage.setItem('currentDir', JSON.stringify(item));
+        }}
+        default
+      />
+      <div
+        class="overflow-auto flex-1 flex flex-wrap h-full gap-7 py-5"
+        ref={scrollEle}
+      >
         <For each={packList}>
           {(e, index) => {
             return (
               <PackItem
-                src={e.path + e.cover}
+                src={path.join(e.path, 'thumb.jpg')}
                 info={e}
                 onStar={() => {
                   galleryOperator.updateStared({ ...e });

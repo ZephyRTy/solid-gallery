@@ -1,19 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  overflow: hidden;
+}
+
 * {
   @apply select-none;
   font-family: 'Microsoft YaHei', sans-serif;
 }
 .sidebar {
-  @apply w-18 h-full bg-sky-400 rounded-l-xl flex justify-center z-9999;
+  @apply w-18 h-full bg-sky-400 rounded-l-md flex justify-center z-9999;
 }
 .main-content {
-  @apply w-full h-full flex-1 bg-slate-100 flex flex-col overflow-hidden rounded-r-xl;
+  @apply w-full h-full flex-1 bg-slate-100 flex flex-col overflow-hidden rounded-r-md;
 }
 .page {
-  @apply flex flex-wrap justify-center w-full flex-1 gap-7 overflow-y-auto border-y-1 border-slate-300 relative;
-  padding: 20px 5%;
+  @apply flex flex-wrap justify-center w-full flex-1 overflow-y-auto border-y-1 border-slate-300 relative;
+  padding-right: 5%;
 }
 
 .pack-page {
@@ -44,9 +49,14 @@
   @apply text-2xl font-bold font-serif text-slate-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-sm;
 }
 .image-item {
-  @apply flex flex-col items-center gap-2 pb-1 aspect-auto rounded-lg border-1 border-slate-300 shadow-md transition-all duration-500 w-60 max-w-80 h-100 hover:shadow-lg hover:shadow-slate-400
+  @apply flex flex-col items-center gap-2 pb-1 aspect-auto rounded-md border-1 border-slate-300 shadow-md transition-all duration-500 w-60 max-w-80 h-100 hover:shadow-lg hover:shadow-slate-400
 	[transform-style:preserve-3d];
 }
+
+.image-item:not(.is-manage) {
+  @apply [&:hover_img]:scale-110 [&:hover]:text-sky-500;
+}
+
 .page-number {
   @apply hover:fill-sky-400 hover:text-sky-400 fill-slate-600 cursor-pointer mt-px text-center;
 }
@@ -65,6 +75,6 @@ input[type='number'] {
   @apply fill-yellow-400;
 }
 
-.current-dir.folder-item {
+.current-dir.folder-list-item {
   @apply text-sky-400 font-bold border-b-1 border-b-sky-400;
 }

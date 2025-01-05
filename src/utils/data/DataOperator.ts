@@ -22,7 +22,7 @@ import {
   createStarModel,
   selectionModel,
 } from '../models';
-import { RequestOperator } from '../request/requestOperator';
+import { RequestOperator } from '../sql/requestOperator';
 /**
  *
  * @param time 要睡眠的毫秒数
@@ -188,12 +188,10 @@ export abstract class DataOperator<
     dirId?: number,
   ): Promise<[normal[], number]> {
     this.switchMode(Mode.DirContent);
-    if (dirId !== this.currentDir) {
-      this.currentDir = dirId!;
-      this.currentPacks = await this.sql.select([], Mode.DirContent, {
-        dirId,
-      });
-    }
+    this.currentDir = dirId!;
+    this.currentPacks = await this.sql.select([], Mode.DirContent, {
+      dirId,
+    });
     return [
       this.currentPacks.slice(
         (page - 1) * packCountOfSinglePage,
@@ -280,9 +278,6 @@ export abstract class DataOperator<
     return url;
   }
 
-  //获取当前要打开的页面
-  abstract packWillOpen(packId: number, change: boolean): normal | null;
-
   async UpdateBookmark(newBookmark: bookmark, marked: boolean = true) {
     await this.bookmarkModel.update(newBookmark, marked);
     if (hasCover(newBookmark)) {
@@ -298,51 +293,36 @@ export abstract class DataOperator<
     this.selection.update(newSelection, selected);
   }
 
-  addFileToDir(dirIndex: number) {
-    if (this.selection.selected.size === 0) {
-      return;
-    }
-    let cover = '';
-    let count = 0;
-    let n = 0;
-    for (let i = 0; i < this.currentPacks.length; ++i) {
-      const e = this.currentPacks[i];
-      if (this.selection.selected.has(e.id)) {
-        if (hasCover(e)) {
-          cover = e.path + e.cover;
-        }
-        ++n;
-        if (n > 0 && n % 10 === 0) {
-          sleep(100);
-        }
-        e.parent = dirIndex;
-        this.sql
-          .updateDir(dirIndex, e.id, 1, hasCover(e) ? cover : '')
-          .then(() => {
-            ++count;
-            if (count === this.selection.selected.size) {
-              this.dirMap.get(dirIndex.toString())!.count +=
-                this.selection.selected.size;
-              this.selection.selected.clear();
-              if (this.mode === Mode.Normal) {
-                this.refresh();
-              }
-              this.switchMode(Mode.Init);
-            }
-          });
+  async addFileToDir(dirIndex: number, selected: number[]) {
+    for (let i = 0; i < selected.length; ++i) {
+      const e = selected[i];
+      const pack = this.currentPacks.find((v) => v.id === e);
+      if (pack) {
+        pack.parent = dirIndex;
       }
+      await this.sql.updateDir(dirIndex, e, 1, '');
     }
+    this.dirMap = await this.sql.mapDir();
+    this.switchMode(Mode.Init);
+    return;
   }
 
   abstract addNewDir(dirName: string): Promise<number>;
+
   removeFileFromDir(packId: number, dirId: number) {
     let e = this.currentPacks.find((e) => e.id !== packId);
     if (hasCover(e)) {
-      this.sql
+      return this.sql
         .updateDir(dirId, packId, 0, e ? e.path + e.cover : defaultCover)
         .then((e) => {
           this.dirMap.get(dirId.toString())!.count--;
-          this.currentPacks = this.currentPacks.filter((v) => v.id !== packId);
+          const item =
+            this.currentPacks.find((v) => v.id === packId) ||
+            this.searchCache.res.find((v) => v.id === packId);
+          const stared = this.starModel.data.find((v) => v.id === packId);
+          stared && (stared.parent = undefined);
+          if (!item) return;
+          item.parent = undefined;
           this.refresh();
         });
     }

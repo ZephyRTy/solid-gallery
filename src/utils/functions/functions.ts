@@ -175,3 +175,10 @@ export const range = (from: number, to: number) => {
   }
   return arr;
 };
+
+export const getLegalUrl = (url: string) => {
+  return String.raw`${url.replace(/\\/g, '/')}`
+    .replaceAll(/%/g, encodeURIComponent('%'))
+    .replaceAll(/\s/g, encodeURIComponent(' '))
+    .replaceAll(/#/g, encodeURIComponent('#'));
+};

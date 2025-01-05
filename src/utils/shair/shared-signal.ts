@@ -1,8 +1,18 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Accessor, createSignal, Setter } from 'solid-js';
+
 export class SharedSignal<T> {
   private signal: Accessor<T>;
   private setSignal: Setter<T>;
+
+  static create<T>(value: T) {
+    const instance = new SharedSignal(value);
+    return Object.assign(() => instance.get(), {
+      set: (value: Exclude<T, Function> | ((prev: T) => T)) =>
+        instance.set(value),
+      get: () => instance.get(),
+    });
+  }
 
   constructor(value: T) {
     const [signal, setSignal] = createSignal<T>(value);
