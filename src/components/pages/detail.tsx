@@ -64,6 +64,12 @@ export const Pack: Component = () => {
             e.toLowerCase() !== 'thumb.jpg'
           );
         })
+        .sort((a: string, b: string) => {
+          const aNum = Number(a.match(/\d+/g)?.[0]) || 0;
+          const bNum = Number(b.match(/\d+/g)?.[0]) || 0;
+          console.log(aNum, bNum);
+          return aNum - bNum;
+        })
         .map((image, index) => {
           return `${packPath}/${image}`;
         }) as string[];
