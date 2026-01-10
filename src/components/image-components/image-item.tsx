@@ -27,7 +27,6 @@ export const ImageItem: Component<IProps> = (props) => {
         const relativeX = e.clientX - parentRect.left;
         const relativeY =
           e.clientY + e.currentTarget.parentElement!.scrollTop - parentRect.top;
-
         signalStore.imageItemContextMenuPosition.pureSet(
           produce((draft) => {
             draft.x = relativeX;

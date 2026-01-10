@@ -10,6 +10,7 @@ import { NormalImage } from '../../types/global';
 import { useNavigate } from '@solidjs/router';
 import Star from '../../icon/star.svg';
 import StarFill from '../../icon/star-fill.svg';
+import DeleteIcon from '../../icon/delete.svg';
 import RemoveFromFolder from '../../icon/remove-from-folder.svg';
 import { Icon } from '../icon';
 import { getLegalUrl } from '../../utils/functions/functions';
@@ -27,10 +28,13 @@ export const PackItem: Component<IProps> = (props) => {
   const [err, setErr] = createSignal(false);
   const [selected, setSelected] = createSignal(false);
   const navigator = useNavigate();
+  const store = signalStore;
   const [prop, left] = splitProps(props, ['src', 'info']);
   const [parent, setParent] = createSignal('');
   const disable = createMemo(() => err() || !!props.info.parent);
+  const [deleteConfirmed, setDeleteConfirmed] = createSignal(false);
   createEffect(() => {
+    store.refresh();
     if (signalStore.isManaging()) {
       setSelected(false);
     }
@@ -115,6 +119,23 @@ export const PackItem: Component<IProps> = (props) => {
         onClick={(e) => {
           e.stopPropagation();
           left.onStar?.(e);
+        }}
+      />
+      <Icon
+        class={`absolute right-8 top-2 fill-slate-300 cursor-pointer ${deleteConfirmed() ? 'fill-red-500' : '' }`}
+        icon={DeleteIcon}
+        size={24}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!deleteConfirmed()) {
+            setDeleteConfirmed(true);
+            setTimeout(() => {
+              setDeleteConfirmed(false);
+            }, 2000);
+            return;
+          }
+          galleryOperator.removePack(props.info)
+          store.refresh.set((v) => !v);
         }}
       />
       <Show when={!!props.info.parent && location.href.includes('/ShowDirs')}>

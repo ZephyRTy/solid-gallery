@@ -41,5 +41,3 @@ export type VirtualStore<T> = {
       ? VirtualStore<T[P]> & DataOperation<T[P]>
       : Callable<T> & DataOperation<T[P]>;
 };
-
-type a = VirtualStore<number>;

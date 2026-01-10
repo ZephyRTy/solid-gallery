@@ -14,7 +14,7 @@ export class SharedSignal<T> {
     });
   }
 
-  constructor(value: T) {
+  private constructor(value: T) {
     const [signal, setSignal] = createSignal<T>(value);
     this.setSignal = setSignal;
     this.signal = signal;

@@ -618,6 +618,10 @@ video {
   right: 1rem;
 }
 
+.right-8 {
+  right: 2rem;
+}
+
 .top-0 {
   top: 0px;
 }
@@ -972,6 +976,10 @@ video {
 
 .fill-white {
   fill: #fff;
+}
+
+.fill-red-500 {
+  fill: #ef4444;
 }
 
 .object-contain {
