@@ -12,7 +12,34 @@ export const TopBar: Component<{ isPackPage: boolean }> = (props) => {
       <h1 class="flex-1 text-center text-sm text-stone-400 tracking-wider select-none">
         {signalStore.title()}
       </h1>
-      <div class="flex items-center gap-1 no-drag ml-auto">
+      <div class="flex items-center gap-3 no-drag ml-auto">
+        <Show when={!props.isPackPage}>
+          <button
+            aria-label={signalStore.isManaging() ? '退出选择模式' : '选择模式'}
+            onClick={() => signalStore.isManaging.set((v) => !v)}
+            class="flex items-center gap-2 group"
+            title="选择模式"
+          >
+            <span class="text-xs text-stone-400 group-hover:text-stone-600 transition-colors select-none">
+              选择
+            </span>
+            <span
+              class="relative inline-flex w-9 h-5 rounded-full transition-colors duration-200"
+              classList={{
+                'bg-accent-violet': signalStore.isManaging(),
+                'bg-stone-200': !signalStore.isManaging(),
+              }}
+            >
+              <span
+                class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200"
+                classList={{
+                  'translate-x-[18px]': signalStore.isManaging(),
+                  'translate-x-0.5': !signalStore.isManaging(),
+                }}
+              />
+            </span>
+          </button>
+        </Show>
         <button
           aria-label="Minimize"
           onClick={() => ipcRenderer.send('min')}

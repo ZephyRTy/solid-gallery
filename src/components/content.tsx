@@ -22,10 +22,10 @@ export const MainContent: Component<any> = (props) => {
       </nav>
       <main class="flex-1 flex flex-col min-w-0 bg-stone-50">
         <TopBar isPackPage={isPackPage()} />
+        <SelectionBar />
         <div class="flex-1 overflow-auto">{props.children}</div>
         <Nav total={signalStore.page()} />
       </main>
-      <SelectionBar />
       <FolderDrawer />
     </div>
   );
