@@ -15,7 +15,7 @@ export const MainContent: Component<any> = (props) => {
   return (
     <div class="flex h-full w-full">
       <nav
-        class="flex flex-col items-center py-8 gap-6 z-10 w-12 shrink-0"
+        class="flex flex-col py-6 px-3 z-10 w-[180px] shrink-0 bg-white border-r border-stone-100"
         aria-label="Page navigation"
       >
         {isPackPage() ? <PackSidebar /> : <IndexSidebar />}
