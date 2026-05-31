@@ -8,15 +8,10 @@ import {
 } from 'solid-js';
 import { NormalImage } from '../../types/global';
 import { useNavigate } from '@solidjs/router';
-import Star from '../../icon/star.svg';
-import StarFill from '../../icon/star-fill.svg';
-import DeleteIcon from '../../icon/delete.svg';
-import RemoveFromFolder from '../../icon/remove-from-folder.svg';
-import { Icon } from '../icon';
 import { getLegalUrl } from '../../utils/functions/functions';
 import signalStore from '../../utils/shared-signal';
-import { galleryOperator } from '../../utils/data/galleryOperator';
 import { Checkbox } from '../checkbox/checkbox';
+
 interface IProps {
   src: string;
   info: NormalImage;
@@ -27,12 +22,12 @@ interface IProps {
 export const PackItem: Component<IProps> = (props) => {
   const [err, setErr] = createSignal(false);
   const [selected, setSelected] = createSignal(false);
-  const navigator = useNavigate();
+  const [imgLoaded, setImgLoaded] = createSignal(false);
+  const navigate = useNavigate();
   const store = signalStore;
-  const [prop, left] = splitProps(props, ['src', 'info']);
-  const [parent, setParent] = createSignal('');
+  const [prop] = splitProps(props, ['src', 'info']);
   const disable = createMemo(() => err() || !!props.info.parent);
-  const [deleteConfirmed, setDeleteConfirmed] = createSignal(false);
+
   createEffect(() => {
     store.refresh();
     if (signalStore.isManaging()) {
@@ -52,110 +47,109 @@ export const PackItem: Component<IProps> = (props) => {
   });
 
   createEffect(() => {
-    if (props.info.parent)
-      setParent(
-        galleryOperator.getDirMap().get(props.info.parent.toString())?.title ||
-          '',
-      );
-  });
-
-  createEffect(() => {
     setSelected(!!props.selectAll && !disable());
   });
 
+  const handleClick = () => {
+    if (err()) return;
+    if (signalStore.isManaging()) {
+      setSelected((v) => !v);
+      return;
+    }
+    sessionStorage.setItem('from', location.href);
+    navigate(`/pack/${props.info.id}`);
+  };
+
   return (
     <div
-      class="image-item cursor-pointer"
-      classList={{ 'is-manage': signalStore.isManaging() }}
-      onClick={() => {
-        if (err()) return;
-        if (signalStore.isManaging()) {
-          setSelected((v) => !v);
-          return;
-        }
-        sessionStorage.setItem('from', location.href);
-        navigator(`/pack/${props.info.id}`);
+      role="button"
+      tabIndex={0}
+      aria-label={props.info.title}
+      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      onClick={handleClick}
+      class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-stone-100 cursor-pointer
+        transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200
+        focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-2
+        animate-fade-in"
+      classList={{
+        'ring-2 ring-accent-violet': signalStore.isManaging() && selected(),
       }}
     >
       <Show when={signalStore.isManaging()}>
         <Checkbox
-          class="absolute  left-3 top-3 "
+          class="absolute left-3 top-3 z-10"
           checked={selected()}
           disabled={!!props.info.parent}
-          handleChanged={(v) => {
-            setSelected(v);
-          }}
+          handleChanged={(v) => setSelected(v)}
         />
       </Show>
-      <div class="flex flex-1 items-center justify-center max-h-5/6 relative">
+
+      <Show
+        when={!err()}
+        fallback={
+          <div class="w-full h-full flex flex-col items-center justify-center gap-2 text-stone-300">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+            <span class="text-xs">Unable to load</span>
+          </div>
+        }
+      >
         <img
-          class="shadow-md w-3/5 transition-all duration-500 overflow-hidden max-h-full"
           src={getLegalUrl(prop.src)}
-          onError={() => {
-            setErr(true);
-          }}
+          alt={props.info.title}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setErr(true)}
+          class="w-full h-full object-cover transition-all duration-500
+            group-hover:scale-105"
+          classList={{ 'opacity-0': !imgLoaded() }}
         />
-        <Show when={parent()}>
-          <span class="absolute bottom-1 text-sm text-gray-400 min-w-52 text-center">
-            {parent()}
-          </span>
-        </Show>
-      </div>
-      <div class="flex-center h-1/6 w-full mx-4  border-t-1 border-slate-300">
-        <span
-          class="block w-40 text-sm text-center leading-6
-					select-none whitespace-nowrap overflow-hidden text-ellipsis "
-          title={props.info.title}
-        >
-          {props.info.title}
-        </span>
-      </div>
-      <Icon
-        class={`absolute right-2 top-2 cursor-pointer pack-star ${
-          prop.info.stared ? 'pack-stared' : ''
-        }`}
-        icon={prop.info.stared ? StarFill : Star}
-        size={24}
-        onClick={(e) => {
-          e.stopPropagation();
-          left.onStar?.(e);
-        }}
-      />
-      <Icon
-        class={`absolute right-8 top-2 fill-slate-300 cursor-pointer ${deleteConfirmed() ? 'fill-red-500' : ''}`}
-        icon={DeleteIcon}
-        size={24}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!deleteConfirmed()) {
-            setDeleteConfirmed(true);
-            setTimeout(() => {
-              setDeleteConfirmed(false);
-            }, 2000);
-            return;
-          }
-          galleryOperator.removePack(props.info);
-          store.refresh.set((v) => !v);
-        }}
-      />
-      <Show when={!!props.info.parent && location.href.includes('/ShowDirs')}>
-        <Icon
-          class={`absolute right-2 top-10 cursor-pointer fill-slate-300 hover:fill-red-500`}
-          icon={RemoveFromFolder}
-          size={24}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!prop.info.parent) {
-              return;
-            }
-            galleryOperator
-              .removeFileFromDir(prop.info.id, prop.info.parent)
-              ?.then(() => {
-                signalStore.refresh.set((v) => !v);
-              });
-          }}
-        />
+        {!imgLoaded() && <div class="absolute inset-0 skeleton" />}
       </Show>
+
+      <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/50 via-black/20 to-transparent">
+        <div class="flex items-center justify-between gap-2">
+          <span
+            class="text-sm text-white font-medium truncate flex-1"
+            title={props.info.title}
+          >
+            {props.info.title}
+          </span>
+          <button
+            aria-label={prop.info.stared ? 'Unstar' : 'Star'}
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onStar?.(e);
+            }}
+            class="shrink-0 btn-press focus-visible:ring-2 focus-visible:ring-accent-violet rounded-full"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill={prop.info.stared ? '#f59e0b' : 'none'}
+              stroke={prop.info.stared ? '#f59e0b' : 'white'}
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="transition-all duration-300 hover:scale-110 drop-shadow-sm"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

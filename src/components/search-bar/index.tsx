@@ -1,64 +1,76 @@
 import { Component, createSignal } from 'solid-js';
-import { Icon } from '../icon';
-import SearchIcon from '../../icon/search.svg';
 import { useSearchParams } from '@solidjs/router';
 import signalStore from '../../utils/shared-signal';
 const { ipcRenderer } = window.require('electron');
 
 export const SearchBar: Component = () => {
-  const [focus, setFocus] = createSignal(false);
+  const [value, setValue] = createSignal('');
   const [, setSearchParams] = useSearchParams();
+  let inputRef: HTMLInputElement | undefined;
 
-  let input = undefined as HTMLInputElement | undefined;
-  const handleClick = () => {
-    if (input) {
-      if (!focus()) {
-        input.focus();
-        document.addEventListener('keydown', bindEnter);
-      } else {
-        input.blur();
-        input.value = '';
-        document.removeEventListener('keydown', bindEnter);
-      }
-      setFocus((prev) => !prev);
+  const submit = () => {
+    signalStore.selectedPacks.set([]);
+    const v = value();
+    if (v === 'console') {
+      ipcRenderer.send('console');
+      return;
     }
+    setSearchParams({ search: v || null });
   };
 
-  const bindEnter = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      signalStore.selectedPacks.set([]);
-      const value = input?.value;
-      if (value === 'console' && e.ctrlKey) {
-        ipcRenderer.send('console');
-        return;
-      }
-      setSearchParams({ search: value });
-      input!.value = '';
-    }
+  const clear = () => {
+    setValue('');
+    setSearchParams({ search: null });
+    inputRef?.focus();
   };
+
   return (
-    <div
-      class={`no-drag absolute left-4 flex-center p-2 border-2 rounded-full transition-all ${
-        focus()
-          ? 'border-slate-800'
-          : 'fill-slate-400 hover:fill-slate-500 border-transparent'
-      }`}
-    >
-      <Icon
-        icon={SearchIcon}
-        size={24}
-        onClick={handleClick}
-        class={`cursor-pointer ${focus() ? 'scale-110' : 'hover:scale-110'}`}
-      />
+    <div class="no-drag flex items-center gap-2 h-8 px-3 rounded-full bg-stone-100 border border-stone-200 focus-within:bg-white focus-within:border-accent-violet focus-within:shadow-sm transition-all duration-200 w-56">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#a8a29e"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="shrink-0"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="M21 21l-4.3-4.3" />
+      </svg>
       <input
-        ref={input}
+        ref={inputRef}
         type="text"
-        class="outline-none bg-transparent transition-all duration-300"
-        classList={{
-          'w-0': !focus(),
-          'w-[300px] px-[5px]': focus(),
+        placeholder="Search packs..."
+        value={value()}
+        onInput={(e) => setValue(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') submit();
+          if (e.key === 'Escape') clear();
         }}
+        class="flex-1 outline-none bg-transparent text-sm text-stone-700 placeholder-stone-300 min-w-0"
       />
+      {value() && (
+        <button
+          onClick={clear}
+          class="shrink-0 w-4 h-4 flex items-center justify-center rounded-full text-stone-300 hover:text-stone-500 hover:bg-stone-200 transition-colors"
+          aria-label="Clear search"
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 };

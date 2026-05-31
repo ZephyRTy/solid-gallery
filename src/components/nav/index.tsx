@@ -7,11 +7,6 @@ import {
   splitProps,
 } from 'solid-js';
 import { range } from '../../utils/functions/functions';
-import { Icon } from '../icon';
-import nextPage from '../../icon/nextPage.svg';
-import prevPage from '../../icon/prevPage.svg';
-import firstPage from '../../icon/firstPage.svg';
-import lastPage from '../../icon/lastPage.svg';
 
 interface IProps {
   total: number;
@@ -22,6 +17,7 @@ export const Nav: Component<IProps> = (props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [curPage, setPage] = createSignal(1);
   const [prop] = splitProps(props, ['total']);
+
   createEffect(() => {
     setPage(parseInt(searchParams.page || '1'));
     const total = prop.total;
@@ -36,96 +32,115 @@ export const Nav: Component<IProps> = (props) => {
     }
   });
 
-  const changePage = (
-    page: number | 'prev' | 'next' | Pick<IProps, 'total'>,
-  ) => {
-    let newPage;
-    if (typeof page === 'string') {
-      if (page === 'prev') {
-        newPage = curPage() - 1;
-      } else if (page === 'next') {
-        newPage = curPage() + 1;
-      }
-    } else if (typeof page === 'number') {
-      newPage = page;
-    } else {
-      newPage = page.total;
-    }
-    if (newPage < 1) {
-      newPage = 1;
-    } else if (newPage > prop.total) {
-      newPage = prop.total;
-    }
-    setSearchParams({ page: newPage });
+  const goTo = (page: number) => {
+    if (page < 1 || page > prop.total) return;
+    setSearchParams({ page });
   };
 
+  const pageBtn =
+    'w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 hover:bg-stone-200 btn-press';
+
   return (
-    <div
-      class="h-14 flex-center text-slate-600 z-[9999] bg-slate-100"
-      data-role="nav"
+    <nav
+      class="h-12 shrink-0 flex items-center justify-center gap-1 px-4 border-t border-stone-200 bg-white"
+      aria-label="Pagination"
     >
-      <div class="flex-center gap-3 select-none text-xl">
-        <div
-          class="text-center hover:text-sky-400 cursor-pointer min-w-6"
-          onClick={[changePage, 1]}
+      <button
+        aria-label="First page"
+        onClick={() => goTo(1)}
+        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        disabled={curPage() <= 1}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          <Icon icon={firstPage} size={20} />
-        </div>
-        <div class="page-number" onClick={[changePage, 'prev']}>
-          <Icon icon={prevPage} size={20} />
-        </div>
-
-        <For each={pageNumList()}>
-          {(e) => {
-            return (
-              <div
-                class={`text-center hover:text-sky-400 cursor-pointer min-w-6 ${
-                  +(searchParams.page || 1) === e
-                    ? 'font-bold text-sky-400'
-                    : ''
-                }`}
-                onClick={[changePage, e]}
-              >
-                {e}
-              </div>
-            );
-          }}
-        </For>
-
-        <div class="page-number" onClick={[changePage, 'next']}>
-          <Icon icon={nextPage} size={20} />
-        </div>
-        <div
-          class="text-center hover:text-sky-400 cursor-pointer min-w-6"
-          onClick={[changePage, prop]}
+          <path d="M11 17l-5-5 5-5" />
+          <path d="M18 17l-5-5 5-5" />
+        </svg>
+      </button>
+      <button
+        aria-label="Previous page"
+        onClick={() => goTo(curPage() - 1)}
+        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        disabled={curPage() <= 1}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          <Icon icon={lastPage} size={20} />
-        </div>
-        <div class="text-base">
-          跳转至
-          <input
-            type="number"
-            class="w-12 h-8 text-center outline-none bg-transparent border-b-1 border-slate-300 mx-1"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                let value = parseInt(e.currentTarget.value);
-                if (isNaN(value)) {
-                  return;
-                }
-                if (value < 1) {
-                  value = 1;
-                } else if (value > prop.total) {
-                  value = prop.total;
-                }
-                (e.target as HTMLInputElement).value = '';
-                changePage(value);
-              }
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+      <For each={pageNumList()}>
+        {(n) => (
+          <button
+            onClick={() => goTo(n)}
+            class={pageBtn}
+            classList={{
+              'bg-accent-violet text-white hover:bg-violet-600':
+                curPage() === n,
+              'text-stone-500': curPage() !== n,
             }}
-          />
-          页
-        </div>
-        <div class="text-base">共&nbsp;{props.total}&nbsp;页</div>
-      </div>
-    </div>
+          >
+            {n}
+          </button>
+        )}
+      </For>
+      <button
+        aria-label="Next page"
+        onClick={() => goTo(curPage() + 1)}
+        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        disabled={curPage() >= prop.total}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+      <button
+        aria-label="Last page"
+        onClick={() => goTo(prop.total)}
+        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        disabled={curPage() >= prop.total}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M13 17l5-5-5-5" />
+          <path d="M6 17l5-5-5-5" />
+        </svg>
+      </button>
+      <span class="text-xs text-stone-400 ml-2">
+        {curPage()} / {prop.total}
+      </span>
+    </nav>
   );
 };

@@ -14,14 +14,15 @@ interface IProps {
 export const ImageItem: Component<IProps> = (props) => {
   return (
     <div
-      class="
-			flex flex-col items-center justify-center gap-2 pb-1 aspect-auto cursor-pointer"
-      onClick={() => {
-        props.setZoom(props.index);
-      }}
+      class="group relative aspect-square rounded-xl overflow-hidden bg-stone-100 cursor-pointer
+        animate-fade-in focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-2"
+      role="button"
+      tabIndex={0}
+      aria-label={`Image ${props.index + 1}`}
+      onKeyDown={(e) => e.key === 'Enter' && props.setZoom(props.index)}
+      onClick={() => props.setZoom(props.index)}
       onContextMenu={(e) => {
-        e.preventDefault(); // 禁用默认右键菜单
-
+        e.preventDefault();
         const parentRect =
           e.currentTarget.parentElement!.getBoundingClientRect();
         const relativeX = e.clientX - parentRect.left;
@@ -40,11 +41,14 @@ export const ImageItem: Component<IProps> = (props) => {
         );
       }}
     >
-      <div class="flex-center w-full rounded-md ">
-        <img
-          class="rounded-md shadow-md max-h-full transition-all duration-500 hover:shadow-lg hover:shadow-slate-600"
-          src={props.src}
-        />
+      <img
+        src={props.src}
+        alt={`Image ${props.index + 1}`}
+        class="w-full h-full object-cover transition-all duration-500
+          group-hover:scale-105 group-hover:shadow-lg"
+      />
+      <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/40 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        {props.index + 1}
       </div>
     </div>
   );

@@ -3,11 +3,8 @@ import {
   createEffect,
   createSignal,
   createUniqueId,
-  Show,
   splitProps,
 } from 'solid-js';
-import { Icon } from '../icon';
-import Selected from '../../icon/selected.svg';
 
 interface IProps {
   handleChanged?: (e: boolean) => void;
@@ -34,39 +31,46 @@ export const Checkbox: Component<IProps> = (props) => {
   });
 
   return (
-    <div
-      class={`flex justify-center items-center w-6 h-6 ${mainProps.class}`}
-      style={props.style}
-    >
+    <div class={`flex items-center justify-center w-5 h-5 ${mainProps.class}`}>
       <input
         id={id}
         type="checkbox"
-        class="invisible w-0 h-0"
+        class="sr-only"
         checked={selected()}
         disabled={mainProps.disabled}
         onChange={() => {
           if (mainProps.disabled) return;
-
           setSelected((v) => !v);
           mainProps.handleChanged?.(selected());
         }}
-      ></input>
+      />
       <label
         for={id}
-        class="w-full h-full rounded-full flex justify-center items-center border-slate-300"
+        class="w-full h-full rounded border transition-all duration-200 flex items-center justify-center"
         classList={{
-          'bg-sky-400': selected(),
-          'border-1': !selected(),
-          'bg-slate-100': !selected(),
-          'bg-slate-200 cursor-not-allowed': mainProps.disabled,
-          'cursor-pointer': !mainProps.disabled,
+          'bg-accent-violet border-accent-violet': selected(),
+          'border-stone-300 bg-white': !selected() && !mainProps.disabled,
+          'border-stone-200 bg-stone-100 cursor-not-allowed':
+            mainProps.disabled,
+          'cursor-pointer hover:border-accent-violet':
+            !mainProps.disabled && !selected(),
+          'animate-pop': selected(),
         }}
       >
-        <Show when={selected()}>
-          <div>
-            <Icon icon={Selected} size={16} class="fill-gray-100" />
-          </div>
-        </Show>
+        {selected() && (
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        )}
       </label>
     </div>
   );

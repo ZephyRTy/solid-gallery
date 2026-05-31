@@ -20,82 +20,70 @@ import { compressWithMultiThread } from '../../utils/functions/main-thread';
 import { tinyImage } from '../../utils/tiny-image';
 
 const fs = window.require('fs');
-const path = window.require('path');
 
 export const Pack: Component = () => {
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const id = params.id;
-  const [imageList, setImageList] = createSignal(
-    [] as { src: string; realPath: string }[],
-  );
-  const [fileList, setFileList] = createSignal([] as string[]);
+  const [imageList, setImageList] = createSignal<
+    { src: string; realPath: string }[]
+  >([]);
+  const [fileList, setFileList] = createSignal<string[]>([]);
   const [srcNum, setSrcNum] = createSignal(-1);
   const [packInfo, setPackInfo] = createStore({} as NormalImage);
-  const [style, setStyle] = createSignal('' as string);
+  const [isLoading, setIsLoading] = createSignal(true);
   let pageEle: HTMLDivElement | undefined;
 
   onMount(() => {
-    window.addEventListener('resize', () => {
-      setStyle(`top: ${pageEle?.scrollTop}px;`);
-    });
-    let pack: NormalImage | undefined;
-    if (!packInfo.id) {
-      pack = galleryOperator.getPackImages(id);
-      signalStore.title.set(pack?.title || '');
-      setPackInfo(pack || {});
-    }
+    const pack = galleryOperator.getPackImages(id);
+    signalStore.title.set(pack?.title || '');
+    setPackInfo(pack || {});
     const packPath = pack?.path;
-
-    if (!fs.existsSync(packPath)) {
-      return;
-    }
+    if (!packPath || !fs.existsSync(packPath)) return;
     window.sessionStorage.setItem('currentDetailPage', JSON.stringify(pack));
-    if (fileList().length === 0) {
-      const imagePathList = fs
-        .readdirSync(packPath)
-        .filter((e: string) => {
-          const filename = e.toLowerCase();
-          return (
-            (filename.endsWith('.jpg') ||
-              filename.endsWith('.png') ||
-              filename.endsWith('.jpeg') ||
-              filename.endsWith('.webp')) &&
-            e.toLowerCase() !== 'thumb.jpg'
-          );
-        })
-        .sort((a: string, b: string) => {
-          const aNum = Number(a.match(/\d+/g)?.[0]) || 0;
-          const bNum = Number(b.match(/\d+/g)?.[0]) || 0;
-          return aNum - bNum;
-        })
-        .map((image, index) => {
-          return `${packPath}/${image}`;
-        }) as string[];
-      setFileList(imagePathList);
-    }
+
+    const images = fs
+      .readdirSync(packPath)
+      .filter((e: string) => {
+        const f = e.toLowerCase();
+        return (
+          (f.endsWith('.jpg') ||
+            f.endsWith('.png') ||
+            f.endsWith('.jpeg') ||
+            f.endsWith('.webp')) &&
+          f !== 'thumb.jpg'
+        );
+      })
+      .sort((a: string, b: string) => {
+        const aNum = Number(a.match(/\d+/g)?.[0]) || 0;
+        const bNum = Number(b.match(/\d+/g)?.[0]) || 0;
+        return aNum - bNum;
+      })
+      .map((img) => `${packPath}/${img}`);
+    setFileList(images);
   });
 
   createEffect(async () => {
+    setIsLoading(true);
     setImageList([]);
     const packPath = packInfo?.path;
     const page = parseInt(searchParams.page || '1');
-    if (fs.existsSync(packPath)) {
+    if (packPath && fs.existsSync(packPath)) {
       signalStore.page.set(Math.ceil(fileList().length / itemsOfEachPage));
       const srcList = fileList().slice(
         (page - 1) * itemsOfEachPage,
         page * itemsOfEachPage,
       );
       const pivot = Math.min(srcList.length, 8);
-      setImageList([
-        ...srcList.slice(0, pivot).map((e) => ({
+      setImageList(
+        srcList.slice(0, pivot).map((e) => ({
           src: getLegalUrl(e),
           realPath: getLegalUrl(e),
         })),
-      ]);
-      if (pivot >= srcList.length) {
-        return;
-      }
+      );
+      setIsLoading(false);
+
+      if (pivot >= srcList.length) return;
 
       const batchSize = 4;
       for (let cur = pivot; cur < srcList.length; cur += batchSize) {
@@ -105,31 +93,16 @@ export const Pack: Component = () => {
             src: e,
             realPath: getLegalUrl(curList[i]),
           }));
-          setImageList((prev) => {
-            return [...prev, ...temp];
-          });
+          setImageList((prev) => [...prev, ...temp]);
         });
       }
       const release = new Array(8).fill(tinyImage);
       compressWithMultiThread(release);
-
-      // const temp = srcList.slice(pivot);
-      // compressWasm(temp).then((res) => {
-      //   setImageList((prev) => {
-      //     return [
-      //       ...prev,
-      //       ...res.map((e, i) => ({ src: e, realPath: temp[i] })),
-      //     ];
-      //   });
-      // });
     }
   });
 
   createEffect(() => {
-    if (srcNum() === -1) {
-      return;
-    }
-    setStyle(`top: ${pageEle?.scrollTop}px;`);
+    if (srcNum() === -1) return;
     const page = parseInt(searchParams.page || '1');
     const newPage = Math.ceil((srcNum() + 1) / itemsOfEachPage);
     if (page !== newPage) {
@@ -146,20 +119,36 @@ export const Pack: Component = () => {
   };
 
   return (
-    <>
-      <div class="pack-page" ref={pageEle}>
+    <div class="flex flex-col flex-1 min-h-0 overflow-hidden bg-stone-50">
+      <h2 class="px-8 pt-8 pb-4 text-4xl tracking-tight font-semibold text-stone-800">
+        {packInfo.title}
+      </h2>
+      <div class="flex-1 overflow-auto px-8 pb-4" ref={pageEle}>
         <PackPageContext />
         <Show when={srcNum() > -1}>
           <Zoom
             src={fileList()[srcNum()]}
             setSrc={setSrcNum}
             handleWheel={handleWheel}
-            style={style()}
+            total={fileList().length}
+            current={srcNum()}
           />
         </Show>
-        <For each={imageList()}>
-          {(e, index) => {
-            return (
+        <Show when={isLoading()}>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map(() => (
+              <div class="aspect-square rounded-xl skeleton" />
+            ))}
+          </div>
+        </Show>
+        <Show when={!isLoading() && imageList().length === 0}>
+          <div class="flex flex-col items-center justify-center py-20 text-stone-300">
+            <p class="text-lg">No images found</p>
+          </div>
+        </Show>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          <For each={imageList()}>
+            {(e, index) => (
               <ImageItem
                 packInfo={packInfo}
                 src={e.src}
@@ -170,10 +159,10 @@ export const Pack: Component = () => {
                   (parseInt(searchParams.page || '1') - 1) * itemsOfEachPage
                 }
               />
-            );
-          }}
-        </For>
+            )}
+          </For>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
