@@ -21,7 +21,7 @@ const signalStore = {
   refresh: signal(false),
   selectedPacks: signal([] as number[]),
   isManaging: signal(false),
-  folderDialogVisible: signal(false),
+
   drawerVisible: signal(false),
   detailPackInfo: signal(null as { title?: string; path?: string } | null),
   imageItemContextMenuPosition,

@@ -1,18 +1,36 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
 
-const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 const remote = require('@electron/remote/main');
-let tray = null;
-// 保持window对象的全局引用,避免JavaScript对象被垃圾回收时,窗口被自动关闭.
+const fs = require('fs');
+
 let mainWindow;
 let openFromProtocolUrl = '';
 
+const BOUNDS_PATH = path.join(app.getPath('userData'), 'window-bounds.json');
+
+const saveBounds = () => {
+  if (!mainWindow) return;
+  const bounds = mainWindow.getBounds();
+  try {
+    fs.writeFileSync(BOUNDS_PATH, JSON.stringify(bounds));
+  } catch {}
+};
+
+const loadBounds = () => {
+  try {
+    const data = fs.readFileSync(BOUNDS_PATH, 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+};
+
 const openUrl = (url) => {
   mainWindow.isMinimized() && mainWindow.restore();
-  // 正则中的 protocol 为自己定义的伪协议
   mainWindow.webContents.send('open-url', decodeURIComponent(url));
 };
 remote.initialize();
@@ -27,16 +45,14 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient('file');
 }
 function createWindow() {
-  //创建浏览器窗口,宽高自定义具体大小你开心就好
-  const src =
-    process.env.NODE_ENV === 'development'
-      ? 'public/favicon.ico'
-      : 'dist/favicon.ico';
-  // tray = new Tray(path.join(__dirname, src)); // 用ico图标格式
+  const saved = loadBounds();
   mainWindow = new BrowserWindow({
-    width: 1440,
-    height: 1000,
-    minWidth: 1440,
+    width: saved?.width || 1440,
+    height: saved?.height || 1000,
+    x: saved?.x,
+    y: saved?.y,
+    minWidth: 800,
+    minHeight: 600,
     frame: false,
     transparent: true,
     webPreferences: {
@@ -47,6 +63,12 @@ function createWindow() {
       webSecurity: false,
     },
   });
+
+  // Restore maximized state
+  if (saved?.isMaximized) {
+    mainWindow.maximize();
+  }
+
   remote.enable(mainWindow.webContents);
   setTimeout(() => {
     openFromProtocolUrl = process.argv.slice(2).join(' ');
@@ -60,7 +82,6 @@ function createWindow() {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
     mainWindow.loadURL(`http://localhost:3000/#/Normal`);
   } else {
-    // mainWindow.webContents.openDevTools({ mode: 'detach' });
     mainWindow.loadURL(
       url.format({
         pathname: path.join(__dirname, 'dist', 'index.html'),
@@ -70,60 +91,40 @@ function createWindow() {
     );
   }
 
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      // 应用退出
-      label: '退出',
-      click: () => {
-        mainWindow.destroy();
-      },
-    },
-  ]);
-  // tray.setContextMenu(contextMenu);
-  // tray.setToolTip('好东西');
-  // tray.on('click', () => {
-  // 	// 这里模拟桌面程序点击通知区图标实现显示或隐藏应用的功能
-  // 	mainWindow.show();
-  // 	// 		mainWindow.setSkipTaskbar(true);
-  // });
-  // 关闭window时触发下列事件.
+  mainWindow.on('close', saveBounds);
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
 }
-// 当 Electron 完成初始化并准备创建浏览器窗口时调用此方法
+app.on('ready', () => {
+  createWindow();
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
 
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  // eslint-disable-next-line no-unused-vars
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
+  app.on('second-instance', (_event, commandLine) => {
     if (mainWindow) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore();
-      }
+      if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
       mainWindow.show();
       openUrl(commandLine.slice(2).join(' '));
     }
   });
-  //app.disableHardwareAcceleration();
-  app.on('ready', createWindow);
 
-  // 所有窗口关闭时退出应用.
   app.on('window-all-closed', function () {
-    // macOS中除非用户按下 `Cmd + Q` 显式退出,否则应用与菜单栏始终处于活动状态.
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
+    if (process.platform !== 'darwin') app.quit();
   });
-  const openUrlListener = function (event, url) {
+
+  const openUrlListener = function (_event, url) {
     if (mainWindow) {
       openUrl(url);
     } else {
-      openFromProtocolUrl = url; // 如果 mainWindow 还没创建，就先缓存
+      openFromProtocolUrl = url;
     }
   };
   app.on('open-url', openUrlListener);
@@ -132,9 +133,7 @@ if (!gotTheLock) {
     mainWindow.hide();
     mainWindow.setSkipTaskbar(false);
   });
-  ipcMain.on('close', () => {
-    mainWindow.close();
-  });
+  ipcMain.on('close', () => mainWindow.close());
   ipcMain.on('console', () =>
     mainWindow.webContents.openDevTools({ mode: 'detach' }),
   );
