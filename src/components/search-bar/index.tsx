@@ -25,7 +25,7 @@ export const SearchBar: Component = () => {
   };
 
   return (
-    <div class="no-drag flex items-center gap-2 h-8 px-3 rounded-full bg-stone-100 border border-stone-200 focus-within:bg-white focus-within:border-accent-violet focus-within:shadow-sm transition-all duration-200 w-56">
+    <div class="no-drag flex items-center gap-2 h-8 px-3 rounded-full bg-stone-100/80 border border-stone-200/60 hover:bg-white hover:shadow-sm focus-within:bg-white focus-within:border-accent-violet focus-within:shadow-sm transition-all duration-200 w-60">
       <svg
         width="14"
         height="14"
