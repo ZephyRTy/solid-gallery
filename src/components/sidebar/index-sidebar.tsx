@@ -38,7 +38,7 @@ export const IndexSidebar: Component = () => {
     <>
       {/* Brand */}
       <div class="flex items-center gap-2.5 px-1 pt-2 pb-5 animate-fade-in select-none">
-        <div class="w-8 h-8 rounded-xl bg-violet-500 flex items-center justify-center shadow-sm">
+        <div class="w-8 h-8 rounded-xl bg-violet-500 flex items-center justify-center shadow-3d">
           <svg
             width="18"
             height="18"
@@ -70,16 +70,28 @@ export const IndexSidebar: Component = () => {
               onClick={() => navigate(`/${m.id}`)}
               class="group relative flex items-center gap-3 w-full h-11 px-3 rounded-xl transition-all duration-300 ease-bounce-sm btn-press focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-1"
               classList={{
-                'shadow-inner translate-y-px bg-violet-500 text-white': active,
-                'shadow-sm text-stone-500 hover:text-stone-700 hover:shadow-md hover:-translate-y-0.5 hover:bg-stone-50':
+                'shadow-3d-active translate-y-px bg-violet-500 text-white':
+                  active,
+                'shadow-3d text-stone-500 hover:text-stone-700 hover:shadow-3d-hover hover:-translate-y-0.5 hover:bg-stone-50':
                   !active,
               }}
             >
+              {/* Surface highlight */}
               <div
-                class="absolute inset-0 rounded-xl pointer-events-none"
+                class="absolute inset-0 rounded-xl pointer-events-none overflow-hidden"
                 classList={{
-                  'bg-gradient-to-b from-white/15 to-transparent': active,
-                  'bg-gradient-to-b from-white/40 to-transparent': !active,
+                  'bg-gradient-to-b from-white/20 via-white/5 to-transparent':
+                    active,
+                  'bg-gradient-to-b from-white/70 via-white/10 to-transparent':
+                    !active,
+                }}
+              />
+              {/* Bottom rim light */}
+              <div
+                class="absolute bottom-px left-2 right-2 h-px rounded-full pointer-events-none opacity-0 transition-opacity duration-300"
+                classList={{
+                  'opacity-30 bg-white': !active,
+                  'group-hover:opacity-60': !active,
                 }}
               />
               <svg

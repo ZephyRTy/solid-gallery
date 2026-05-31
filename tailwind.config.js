@@ -99,6 +99,11 @@ module.exports = {
         '18': '4.5rem',
         '88': '22rem',
       },
+      boxShadow: {
+        '3d': '0 2px 8px -4px rgba(0,0,0,0.18), 0 1px 3px -1px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
+        '3d-hover': '0 8px 24px -8px rgba(0,0,0,0.22), 0 4px 10px -3px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)',
+        '3d-active': 'inset 0 2px 4px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.15)',
+      },
       opacity: {
         '15': '0.15',
       },

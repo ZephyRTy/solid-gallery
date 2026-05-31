@@ -46,9 +46,10 @@ export const PackSidebar: Component = () => {
         <button
           aria-label="Back to gallery"
           onClick={handleBack}
-          class="group relative flex items-center gap-3 w-full h-11 px-3 rounded-xl transition-all duration-300 ease-bounce-sm btn-press shadow-sm text-stone-500 hover:text-stone-700 hover:shadow-md hover:-translate-y-0.5 hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-1"
+          class="group relative flex items-center gap-3 w-full h-11 px-3 rounded-xl transition-all duration-300 ease-bounce-sm btn-press shadow-3d text-stone-500 hover:text-stone-700 hover:shadow-3d-hover hover:-translate-y-0.5 hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-1"
         >
-          <div class="absolute inset-0 rounded-xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
+          <div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none bg-gradient-to-b from-white/70 via-white/10 to-transparent" />
+          <div class="absolute bottom-px left-2 right-2 h-px rounded-full pointer-events-none bg-white opacity-30 transition-opacity duration-300 group-hover:opacity-60" />
           <svg
             width="20"
             height="20"
@@ -69,9 +70,10 @@ export const PackSidebar: Component = () => {
         <button
           aria-label="Open in explorer"
           onClick={handleOpen}
-          class="group relative flex items-center gap-3 w-full h-11 px-3 rounded-xl transition-all duration-300 ease-bounce-sm btn-press shadow-sm text-stone-500 hover:text-stone-700 hover:shadow-md hover:-translate-y-0.5 hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-1"
+          class="group relative flex items-center gap-3 w-full h-11 px-3 rounded-xl transition-all duration-300 ease-bounce-sm btn-press shadow-3d text-stone-500 hover:text-stone-700 hover:shadow-3d-hover hover:-translate-y-0.5 hover:bg-stone-50 focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-1"
         >
-          <div class="absolute inset-0 rounded-xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
+          <div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none bg-gradient-to-b from-white/70 via-white/10 to-transparent" />
+          <div class="absolute bottom-px left-2 right-2 h-px rounded-full pointer-events-none bg-white opacity-30 transition-opacity duration-300 group-hover:opacity-60" />
           <svg
             width="20"
             height="20"
