@@ -6,7 +6,7 @@ const signalStore = initStore({
   page: 1,
   fileDropVisible: false,
   refresh: false,
-  detailPackInfo: asSignal(null as { title?: string; path?: string } | null),
+  detailPackInfo: null as { title?: string; path?: string } | null,
   selectedPacks: asSignal([] as number[]),
   isManaging: false,
   folderDialogVisible: false,
