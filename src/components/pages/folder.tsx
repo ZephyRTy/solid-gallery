@@ -39,10 +39,14 @@ export const FolderPage: Component = () => {
       : currentDir.title;
     signalStore.title.set(title);
 
-    const [list, total] = await galleryOperator.getPacks(1, Mode.DirContent, {
-      dirId: currentDir.id,
-      search,
-    });
+    const [list, total] = await galleryOperator.getPacks(
+      +(searchParams.page || 1),
+      Mode.DirContent,
+      {
+        dirId: currentDir.id,
+        search,
+      },
+    );
     setPackList(list);
     setIsLoading(false);
     signalStore.page.set(Math.ceil(total / itemsOfEachPage));
