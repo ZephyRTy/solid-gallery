@@ -1,6 +1,5 @@
 import { Component, Show } from 'solid-js';
 import signalStore from '../../utils/shared-signal';
-import './index.less';
 import { galleryOperator } from '../../utils/data/galleryOperator';
 interface IProps {
   x: number;
@@ -22,7 +21,7 @@ export const PackPageContext: Component = () => {
         }}
       >
         <div
-          class="context-item"
+          class="text-sm h-[30px] flex items-center pl-[14px] hover:bg-slate-50 cursor-pointer"
           onClick={() => {
             const { id, path } = position.imageInfo();
             const cover = '/' + path.split('/').pop();

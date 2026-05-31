@@ -2,7 +2,6 @@ import { Component, createSignal } from 'solid-js';
 import { Icon } from '../icon';
 import SearchIcon from '../../icon/search.svg';
 import { useSearchParams } from '@solidjs/router';
-import './index.less';
 import signalStore from '../../utils/shared-signal';
 const { ipcRenderer } = window.require('electron');
 
@@ -39,9 +38,9 @@ export const SearchBar: Component = () => {
   };
   return (
     <div
-      class={`no-drag absolute left-4 flex-center p-2 border-2 rounded-full transition-all search-input ${
+      class={`no-drag absolute left-4 flex-center p-2 border-2 rounded-full transition-all ${
         focus()
-          ? 'search-input-focus border-slate-800'
+          ? 'border-slate-800'
           : 'fill-slate-400 hover:fill-slate-500 border-transparent'
       }`}
     >
@@ -51,7 +50,15 @@ export const SearchBar: Component = () => {
         onClick={handleClick}
         class={`cursor-pointer ${focus() ? 'scale-110' : 'hover:scale-110'}`}
       />
-      <input ref={input} type="text" class="transition-all duration-200" />
+      <input
+        ref={input}
+        type="text"
+        class="outline-none bg-transparent transition-all duration-300"
+        classList={{
+          'w-0': !focus(),
+          'w-[300px] px-[5px]': focus(),
+        }}
+      />
     </div>
   );
 };

@@ -9,7 +9,6 @@ import {
 } from 'solid-js';
 import { galleryOperator } from '../../utils/data/galleryOperator';
 import { DirectoryInfo } from '../../types/global';
-import './index.less';
 import signalStore from '../../utils/shared-signal';
 import { Checkbox } from '../checkbox/checkbox';
 import { Icon } from '../icon';
@@ -122,12 +121,13 @@ export const FolderDialog: Component = () => {
   });
   return (
     <div
-      class="dialog-cover"
+      class="fixed inset-0 flex bg-black/50 z-[-1] rounded-md"
       classList={{
-        'visible': signalStore.folderDialogVisible(),
+        'z-[10000] justify-center items-center':
+          signalStore.folderDialogVisible(),
       }}
     >
-      <div class="folder-dialog w-110 bg-slate-100 flex flex-col rounded-md overflow-hidden">
+      <div class="h-[65vh] w-110 bg-slate-100 flex flex-col rounded-md overflow-hidden">
         {/* <div class="w-full h-12 p-2 flex justify-center items-center border-slate-200 border-b-1">
           <Icon icon={Search} size={24} class="mr-2" />
           <input

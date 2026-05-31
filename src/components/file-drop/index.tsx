@@ -1,27 +1,19 @@
 import { createSignal } from 'solid-js';
-import {
-  BasicBookmark,
-  BasicData,
-  BasicFolder,
-  InsertResult,
-} from '../../types/global';
+import { BasicData, BasicFolder, InsertResult } from '../../types/global';
 import signalStore from '../../utils/shared-signal';
 import { galleryOperator } from '../../utils/data/galleryOperator';
-import './index.less';
 import { Toast } from '../toast';
 // eslint-disable-next-line no-unused-vars
-export const FileDrop = <
-  A extends BasicData,
-  B extends BasicBookmark,
-  C extends BasicFolder,
->() => {
+export const FileDrop = <A extends BasicData, C extends BasicFolder>() => {
   const [result, setResult] = createSignal<InsertResult[]>([]);
   let root = null as unknown as HTMLDivElement;
   return (
     <div
       ref={root}
-      class={'file-drop-cover rounded-md'}
-      classList={{ 'visible': signalStore.fileDropVisible() }}
+      class={'fixed inset-0 flex bg-black/50 z-[-1] rounded-md'}
+      classList={{
+        'z-[10000] justify-center items-center': signalStore.fileDropVisible(),
+      }}
       onDragEnter={(e) => {
         e.preventDefault();
         e.stopPropagation();

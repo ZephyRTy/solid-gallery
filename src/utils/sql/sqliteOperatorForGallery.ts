@@ -1,38 +1,28 @@
-/* eslint-disable quotes */
-/* eslint-disable camelcase */
 import {
   BasicData,
-  BookmarkOfBook,
   DirectoryInfo,
-  ImageBookmark,
   ImageDirectory,
   Mode,
   NormalImage,
 } from '../../types/global';
-import { formatDate } from '../functions/functions';
-import { getAllDrive } from '../functions/process';
 import { RequestOperator } from './requestOperator';
-/* eslint-disable no-underscore-dangle */
+import { PackDAO } from './PackDAO';
+
 const sq3 = window.require('sqlite3');
 const path = window.require('path');
 const fs = window.require('fs');
 const os = window.require('os');
-// 封装数据库操作
+
 export class SqliteOperatorForGallery implements RequestOperator {
   private static _instance: SqliteOperatorForGallery;
-  private db;
+  private dao: PackDAO;
+  private db: any;
   private _pool: any;
-  private _config: any;
-  private _searchRes = { param: '', result: [] as string[] };
-  private hasExternalDriver: boolean = false;
-  private loaded = false;
-  private init = false;
-  private database: string = 'GALLERY';
-  private mainTableName = 'pack_list';
-  private drivers: string[] = [];
   count: number = 0;
+  private initDone = false;
+  private drivers: string[] = [];
+
   private constructor() {
-    this.checkExternalDriver();
     const dbPath = path.resolve(
       os.userInfo().homedir,
       'AppData',
@@ -42,9 +32,8 @@ export class SqliteOperatorForGallery implements RequestOperator {
     if (!fs.existsSync(dbPath)) {
       fs.mkdirSync(dbPath);
     }
-    this.db = new sq3.Database(path.resolve(dbPath, 'gallery.db'), () => {
-      this.readerInitialize();
-    });
+    this.db = new sq3.Database(path.resolve(dbPath, 'gallery.db'));
+    this.dao = new PackDAO();
   }
 
   static getInstance(): SqliteOperatorForGallery {
@@ -54,174 +43,46 @@ export class SqliteOperatorForGallery implements RequestOperator {
     return SqliteOperatorForGallery._instance;
   }
 
-  async checkExternalDriver() {
-    if (this.loaded) {
-      return this.hasExternalDriver;
+  private async ensureInit(): Promise<void> {
+    if (!this.initDone) {
+      await this.dao.init();
+      this.initDone = true;
     }
-    const drives = await getAllDrive();
-    this.drivers = drives.map((v) => v.drive);
-    this.hasExternalDriver = true;
-    this.loaded = true;
-    return this.hasExternalDriver;
+  }
+
+  async checkExternalDriver() {
+    return this.dao.checkExternalDriver();
   }
 
   getPackById(id: number) {
-    const sql = `select * from ${this.mainTableName} where id = ?`;
-    return new Promise((resolve, reject) => {
-      if (this.count !== 0) {
-        resolve(this.count);
-      }
-      this.db.get(sql, [id], (err: any, result: any) => {
-        if (err) {
-          reject(err);
-        } else {
-          if (result.length !== 1) {
-            reject('查询结果不为1');
-          }
-          const v = result[0];
-          resolve({
-            id: v.id ?? v.dir_id,
-            title: v.title ?? v.dir_title,
-            path: v.path ?? '',
-            cover: v.cover ?? v.dir_cover,
-            stared: Boolean(v.stared ?? v.dir_stared),
-            parent: v.parent,
-            reg: v.reg,
-          });
-        }
-      });
-    });
+    return this.dao.getPackById(id);
   }
+
   switchDatabase() {
     return true;
   }
+
   async select<Pack = NormalImage, Folder = ImageDirectory>(
     sqlParam: number[],
     mode: Mode,
     options?: Record<string, string>,
   ): Promise<Pack[] | Folder[]> {
-    if (mode === Mode.Normal && sqlParam.length !== 2) {
-      throw new Error('sqlParam is not correct');
-    }
-    let sql = `select * from ${
-      this.mainTableName
-    } where ${this.getDriverSql()} parent is null order by id desc limit ? ,?`;
-    let dirId = '';
-    switch (mode) {
-      case Mode.Normal:
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} parent is null order by id desc limit ? ,?`;
-
-        break;
-      case Mode.Star:
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} stared = 1 order by id desc`;
-        break;
-      case Mode.DirContent:
-        dirId = options!.dirId;
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} parent = ${dirId} order by id desc`;
-        break;
-      case Mode.Folder:
-        sql = `select * from directory order by update_time desc`;
-        if (this.mainTableName === 'pack_list') {
-          sql = `select * from directory,pack_list where cover_id = id order by update_time desc`;
-        }
-        break;
-      case Mode.Bookmark:
-        sql = `select id, title,path, b_cover as cover, b_url as url,
-				 b_timeStamp as timeStamp, stared from bookmark, ${this.mainTableName} 
-				 where ${this.getDriverSql()} bookmark.b_id = ${
-           this.mainTableName
-         }.id order by b_timeStamp desc`;
-        if (this.database === 'book') {
-          sql = `select id, title,path, b_url as url, reg,
-				 b_timeStamp as timeStamp, stared from bookmark, ${this.mainTableName} 
-				 where ${this.getDriverSql()} bookmark.b_id = ${
-           this.mainTableName
-         }.id order by b_timeStamp desc`;
-        }
-        break;
-      default:
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} parent is not null order by id desc limit ? ,?`;
-    }
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, sqlParam, (err: any, result: any) => {
-        if (err) {
-          reject(err);
-        } else {
-          if (mode === Mode.Bookmark) {
-            resolve(
-              result.map((v: any) => {
-                return {
-                  id: v.id,
-                  title: v.title,
-                  path: v.path,
-                  cover: v.cover,
-                  url: v.url,
-                  timeStamp: formatDate(new Date(v.timeStamp).toString()),
-                  stared: Boolean(v.stared),
-                  reg: v.reg,
-                } as unknown as Pack;
-              }),
-            );
-            return;
-          } else if (mode === Mode.Folder) {
-            resolve(
-              result.map((v: any) => {
-                return {
-                  id: v.dir_id,
-                  title: v.dir_title,
-                  cover: v.path + v.cover,
-                  timeStamp:
-                    formatDate(new Date(v.update_time).toString()) ?? '',
-                } as unknown as Folder;
-              }),
-            );
-            return;
-          }
-          resolve(
-            result.map((v: any) => {
-              return {
-                id: v.id ?? v.dir_id,
-                title: v.title ?? v.dir_title,
-                path: v.path ?? '',
-                cover: v.cover ?? v.dir_cover,
-                stared: Boolean(v.stared ?? v.dir_stared),
-                parent: v.parent,
-                reg: v.reg,
-              } as unknown as Pack;
-            }),
-          );
-        }
-      });
-    });
+    await this.ensureInit();
+    return this.dao.select(sqlParam, mode, options) as Promise<
+      Pack[] | Folder[]
+    >;
   }
-  getCount(): Promise<number> {
-    let sql = `select count(*) as count from ${
-      this.mainTableName
-    } where ${this.getDriverSql()} parent is null`;
-    return new Promise((resolve, reject) => {
-      if (this.count !== 0) {
-        resolve(this.count);
-      }
-      this.db.get(sql, (err: any, result: any) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.count || 0);
-        }
-      });
-    });
+
+  async getCount(): Promise<number> {
+    await this.ensureInit();
+    return this.dao.getCount();
   }
 
   end() {
-    this.db.close();
+    this.dao.close();
+    if (this.db) {
+      this.db.close();
+    }
   }
 
   async search<T extends BasicData>(
@@ -229,167 +90,31 @@ export class SqliteOperatorForGallery implements RequestOperator {
     mode: Mode,
     reg: boolean,
   ): Promise<T[]> {
-    let sql = '';
-    let dirId = '';
-    let key = reg ? `regexp '${sqlParam}' ` : `like '%${sqlParam}%'`;
-    switch (mode) {
-      case Mode.Normal:
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} title ${key} order by id desc`;
-        break;
-      case Mode.Star:
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} stared = 1 and title ${key} order by id desc`;
-        break;
-      case Mode.DirContent:
-        dirId = window.location.href.match(/directory=([0-9]+)/)![1];
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} parent = ${dirId} and title ${key} order by id desc`;
-        break;
-      case Mode.Folder:
-        if (this.mainTableName === 'pack_list') {
-          sql = `select * from directory, pack_list where ${this.getDriverSql()} dir_title ${key} and directory.cover_id = pack_list.id order by update_time desc`;
-        } else {
-          sql = `select * from directory where ${this.getDriverSql()} dir_title ${key} order by update_time desc`;
-        }
-        break;
-      case Mode.Bookmark:
-        sql = `select * from bookmark, ${
-          this.mainTableName
-        } where b_id = id and ${this.getDriverSql()} title ${key} order by b_timeStamp desc`;
-        break;
-      default:
-        sql = `select * from ${
-          this.mainTableName
-        } where ${this.getDriverSql()} title ${key} order by id desc`;
-    }
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, (err: any, result: any) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(
-            result.map((v: any) => {
-              return {
-                id: v.dir_id ?? v.id,
-                title: v.dir_title ?? v.title,
-                path: mode === Mode.Folder ? '' : v.path,
-                cover: mode === Mode.Folder ? v.path + v.cover : v.cover,
-                stared: Boolean(v.stared ?? v.dir_stared),
-                parent: v.parent,
-                reg: v.reg,
-                timeStamp: v.update_time,
-              } as unknown as T;
-            }),
-          );
-        }
-      });
-    });
+    await this.ensureInit();
+    return this.dao.search(sqlParam, mode, reg) as Promise<T[]>;
   }
-  async updateStar<T extends BasicData>(data: T) {
-    let sql = `update ${this.mainTableName} set stared = ? where id = ?`;
-    let sqlParam = [data.stared ? 1 : 0, data.id];
 
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, sqlParam, (err, res) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+  async updateStar<T extends BasicData>(data: T) {
+    await this.ensureInit();
+    return this.dao.updateStar(data.id, data.stared);
   }
+
   async updateDir(
     dirId: number,
     packId: number,
     status: 0 | 1,
     cover?: string,
   ) {
-    let sql = `update ${this.mainTableName} set  parent = ? where id = ?`;
-    let sqlParam = [status ? dirId : null, packId] as [number | null, number];
-    if (status) {
-      this.db.run(
-        'update directory set cover_id = ?, update_time = CURRENT_TIMESTAMP where  dir_id = ?',
-        [packId, dirId],
-        (err: any) => {
-          if (err) {
-            console.error(err);
-          }
-        },
-      );
-    } else {
-      this.db.run(
-        `WITH t AS (
-            SELECT id, title, parent
-            FROM pack_list
-            WHERE id IN (
-              SELECT max(id)
-              FROM pack_list
-              WHERE parent > 0
-              GROUP BY parent
-              HAVING id != ?
-            )
-          )
-          UPDATE directory
-          SET cover_id = t.id
-          FROM t
-          WHERE directory.dir_id = ? AND t.parent = directory.dir_id;`,
-        [packId, dirId],
-        (err: any) => {
-          if (err) {
-            console.error(err);
-          }
-        },
-      );
-    }
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, sqlParam, (err: any, res: any) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    await this.ensureInit();
+    return this.dao.updateDir(dirId, packId, status, cover);
   }
 
   mapDir(): Promise<Map<string, DirectoryInfo>> {
-    let sql = `select dir_id as id, dir_title as title , count(parent) as count, update_time as updateTime from directory left outer join ${this.mainTableName} on (dir_id = parent )
-			  group by dir_id ;`;
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, (err: any, result: any) => {
-        if (err) {
-          reject(err);
-        }
-        let map = new Map<string, DirectoryInfo>();
-        result.forEach((v: any) => {
-          map.set(v.id.toString(), {
-            count: v.count,
-            title: v.title,
-            updateTime: new Date(v.updateTime).getTime(),
-          });
-        });
-        resolve(map);
-      });
-    });
+    return this.dao.mapDir();
   }
 
   insertDir(newDir: { dir_title: string }): Promise<number | null> {
-    let stmt = this.db.prepare(
-      'insert into directory (dir_title, update_time) values (?,?)',
-      [newDir.dir_title, formatDate(new Date())],
-    );
-    return new Promise((resolve, reject) => {
-      stmt.run((err: any) => {
-        if (err) {
-          console.error(err);
-          reject(null);
-        }
-        resolve(stmt.lastID as number);
-      });
-    });
+    return this.dao.insertDir(newDir.dir_title);
   }
 
   insertPack(
@@ -399,183 +124,39 @@ export class SqliteOperatorForGallery implements RequestOperator {
       path: string;
       cover?: string;
     },
-    duplicate: boolean = false,
+    _duplicate: boolean = false,
   ) {
-    const { title, stared, path, cover } = newPack;
-    let sql =
-      'insert into pack_list (title, path, stared, cover) values (?,?,?,?)';
-    return new Promise((resolve) => {
-      if (!newPack.cover) {
-        delete newPack.cover;
-      }
-      this.db.run(sql, [title, path, stared, cover], (res: any) => {
-        if (res && !duplicate) {
-          resolve(null);
-          return;
-        }
-        resolve('ok');
-      });
-    });
+    return this.dao.insertPack(
+      newPack.title,
+      newPack.stared,
+      newPack.path,
+      newPack.cover,
+    );
   }
-
-  updateGalleryBookmark(
-    bookmark: ImageBookmark,
-    marked: boolean,
-    mode: 'insert' | 'update',
-  ) {
-    let sql = marked
-      ? mode === 'insert'
-        ? 'insert into bookmark (b_url, b_cover, b_timeStamp, b_id) values (?,?,?,?) '
-        : 'update bookmark set b_url = ?, b_cover = ?, b_timeStamp = ? where b_id = ?'
-      : 'delete from bookmark where b_id = ?';
-    return new Promise((resolve, reject) => {
-      this.db.run(
-        sql,
-        marked
-          ? mode === 'insert'
-            ? [bookmark.url, bookmark.cover, bookmark.timeStamp, bookmark.id]
-            : [bookmark.url, bookmark.cover, bookmark.timeStamp, bookmark.id]
-          : [bookmark.id],
-        (err: any, res: any) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(res);
-        },
-      );
-    });
-  }
-  async updateBookmarkOfBook(
-    _bookmark: BookmarkOfBook,
-    _marked: boolean,
-    _mode: 'insert' | 'update',
-  ) {}
 
   updateReg(id: number, reg: string) {
-    // assert(
-    // 	this.mainTableName === 'book_list',
-    // 	'only book_list can update reg'
-    // );
-    let sql = `update ${this.mainTableName} set reg = ? where id = ?`;
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, [reg, id], (err: any, res: any) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    return this.dao.updateReg(id, reg);
   }
 
   renamePack(packID: number, title: string) {
-    let sql = `update ${this.mainTableName} set title = ? where id = ?`;
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, [title, packID], (err: any, res: any) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    return this.dao.renamePack(packID, title);
   }
 
   renameDir(dirID: number, title: string) {
-    let sql = 'update directory set dir_title = ? where dir_id = ?';
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, [title, dirID], (err: any, res: any) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    return this.dao.renameDir(dirID, title);
   }
 
   changePackCover(packID: number, cover: string) {
-    let sql = `update ${this.mainTableName} set cover = ? where id = ?`;
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, [cover, packID], (err: any, res: any) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    return this.dao.changePackCover(packID, cover);
   }
 
   delete(packID: number) {
-    let sql = `delete from ${this.mainTableName} where id = ?`;
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, [packID], (err: any, res: any) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(res);
-      });
-    });
+    return this.dao.deletePack(packID);
   }
 
   clearBookmark(): Promise<unknown> {
-    const sql = 'truncate table bookmark';
-    return new Promise((resolve, reject) => {
-      this._pool.getConnection((err: any, connection: any) => {
-        connection.query(sql, (err: any, res: any) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(res);
-        });
-      });
-    });
-  }
-
-  private readerInitialize() {
-    const stmt1 = `CREATE TABLE if not exists directory (
-			dir_id integer PRIMARY KEY AUTOINCREMENT ,
-			dir_title varchar(255) NOT NULL,
-			cover_id integer,
-			update_time timestamp NULL DEFAULT CURRENT_TIMESTAMP
-		  )`;
-    const stmt2 = `CREATE TABLE if not exists pack_list (
-			id integer  PRIMARY KEY AUTOINCREMENT ,
-			title varchar(255) NOT NULL,
-			path varchar(255) NOT NULL unique,
-			stared tinyint(1) NOT NULL DEFAULT '0',
-			parent int unsigned DEFAULT NULL,
-			cover varchar(255),
-			CONSTRAINT fk_pack_id FOREIGN KEY (parent) REFERENCES directory (dir_id) ON DELETE SET NULL ON UPDATE CASCADE
-		  ) `;
-    const stmt3 = `CREATE TABLE if not exists bookmark (
-			b_id int NOT NULL,
-			b_timeStamp timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-			b_url varchar(255) NOT NULL,
-			b_cover varchar(255),
-			PRIMARY KEY (b_id),
-			CONSTRAINT bookmark_ibfk_1 FOREIGN KEY (b_id) REFERENCES pack_list (id) ON DELETE CASCADE ON UPDATE CASCADE
-		  )`;
-    this.db.run(stmt1, (arg) => {
-      if (arg) console.log(arg);
-    });
-    this.db.run(stmt2, (arg) => {
-      if (arg) console.log(arg);
-    });
-    this.db.run(stmt3, (arg) => {
-      if (arg) console.log(arg);
-    });
-  }
-
-  getDriverSql() {
-    let sql = '';
-    this.drivers.forEach((v, i) => {
-      sql += `path like '${v}%' `;
-      if (i !== this.drivers.length - 1) {
-        sql += 'or ';
-      }
-    });
-    if (sql) {
-      sql = `(${sql}) and `;
-    }
-    return sql;
+    return Promise.resolve();
   }
 }
+
 export const sqliteOperatorForGallery = SqliteOperatorForGallery.getInstance();

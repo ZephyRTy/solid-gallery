@@ -9,7 +9,6 @@ import {
   Switch,
 } from 'solid-js';
 import { render } from 'solid-js/web';
-import './index.less';
 import SuccessIcon from '../../icon/success.svg';
 import ErrorIcon from '../../icon/error.svg';
 import { Icon } from '../icon';
@@ -48,7 +47,7 @@ export const ToastComponent: Component<IProps> = (props) => {
 
   return (
     <div
-      class="toast"
+      class="bg-white h-10 w-fit flex justify-center items-center rounded-md my-2.5 px-3 shadow-lg transition-all duration-300"
       id={props.id}
       classList={{
         'opacity-0': !visible(),
@@ -77,6 +76,8 @@ export class Toast {
     if (!toastElement) {
       toastElement = document.createElement('div');
       toastElement.id = 'toast';
+      toastElement.className =
+        'fixed top-[10%] left-1/2 -translate-x-1/2 flex flex-col items-center z-[10000]';
       document.body.appendChild(toastElement);
     }
 

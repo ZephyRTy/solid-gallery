@@ -13,11 +13,6 @@ export interface BasicData {
   parent?: number;
 }
 
-export interface BasicBookmark extends BasicData {
-  timeStamp: string;
-  url: string;
-}
-
 export interface BasicFolder {
   id: number;
   title: string;
@@ -30,8 +25,6 @@ export interface NormalImage extends BasicData {
 export interface ImageDirectory extends BasicFolder {
   cover: string;
 }
-
-export interface ImageBookmark extends NormalImage, BasicBookmark {}
 
 export interface DirectoryList {
   [index: string]: DirectoryInfo;
@@ -68,7 +61,6 @@ export enum Mode {
   Init = 'INIT',
   Normal = 'Normal',
   Star = 'Stared',
-  Bookmark = 'Bookmark',
   DirContent = 'InDir', //文件夹内部
   Folder = 'ShowDirs',
   Detail = 'Detail',
@@ -82,7 +74,7 @@ export interface TextLine {
   isDecoded: boolean;
   paraIndex: number;
 }
-export type ImageData = NormalImage | ImageDirectory | ImageBookmark;
+export type ImageData = NormalImage | ImageDirectory;
 export interface Chapter {
   title: string;
   index: number;
@@ -100,7 +92,6 @@ export interface MetaBook extends BasicData {
 }
 
 export interface BookDirectory extends BasicFolder {}
-export interface BookmarkOfBook extends MetaBook, BasicBookmark {}
 /**
  * 每一行选区的逻辑形式
  */

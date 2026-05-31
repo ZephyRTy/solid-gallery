@@ -1,5 +1,4 @@
 import { Component, createEffect, createSignal, splitProps } from 'solid-js';
-import './index.less';
 import MultiSelected from '../../icon/multi-select.svg';
 import AddToFolder from '../../icon/add-to-folder.svg';
 import { Icon } from '../icon';
@@ -22,12 +21,12 @@ export const PageToolbar: Component<IProps> = (properties) => {
   });
   return (
     <div
-      class="w-6 fixed left-24 top-20 page-toolbar-wrapper "
+      class="w-6 fixed left-24 top-20 h-[30px] overflow-hidden transition-all duration-300"
       classList={{
-        'page-toolbar-unfold': unfold(),
+        'h-[100px]': unfold(),
       }}
     >
-      <div class="page-toolbar flex flex-col">
+      <div class="flex flex-col space-y-[10px]">
         <Icon
           icon={MultiSelected}
           size={24}

@@ -122,7 +122,7 @@ export const PackItem: Component<IProps> = (props) => {
         }}
       />
       <Icon
-        class={`absolute right-8 top-2 fill-slate-300 cursor-pointer ${deleteConfirmed() ? 'fill-red-500' : '' }`}
+        class={`absolute right-8 top-2 fill-slate-300 cursor-pointer ${deleteConfirmed() ? 'fill-red-500' : ''}`}
         icon={DeleteIcon}
         size={24}
         onClick={(e) => {
@@ -134,7 +134,7 @@ export const PackItem: Component<IProps> = (props) => {
             }, 2000);
             return;
           }
-          galleryOperator.removePack(props.info)
+          galleryOperator.removePack(props.info);
           store.refresh.set((v) => !v);
         }}
       />

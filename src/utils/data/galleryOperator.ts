@@ -2,7 +2,6 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-unused-vars */
 import {
-  ImageBookmark,
   ImageDirectory,
   InsertResult,
   Mode,
@@ -24,11 +23,7 @@ const isValidImage = (v: string) => {
 };
 
 // 对文件进行操作，可与数据进行交互
-export class GalleryOperator extends DataOperator<
-  NormalImage,
-  ImageBookmark,
-  ImageDirectory
-> {
+export class GalleryOperator extends DataOperator<NormalImage, ImageDirectory> {
   protected static instance: GalleryOperator;
   protected override sql: SqliteOperatorForGallery;
   currentDirectory: number = -1;
@@ -152,9 +147,6 @@ export class GalleryOperator extends DataOperator<
     });
   }
   async addNewDir(dirName: string) {
-    // if (this.dirMap.valueSeq().find((v) => v.title === dirName)) {
-    // 	return -1;
-    // }
     for (const key of this.dirMap.keys()) {
       if (this.dirMap.get(key)!.title === dirName) {
         return -Number(key);
@@ -183,7 +175,6 @@ export class GalleryOperator extends DataOperator<
     this.deletePack(pack.id);
     this.currentPacks = this.currentPacks.filter((e) => e.id !== pack.id);
     this.starModel.remove(pack.id);
-    this.bookmarkModel.remove(pack.id);
     this.searchCache.res = this.searchCache.res.filter((e) => e.id !== pack.id);
     if (shouldDelete) {
       rmDir(pack.path).then(() => {

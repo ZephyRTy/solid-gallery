@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import './style/output.css';
+import './style/input.css';
 import { MainContainer } from './components/main';
 
 const App: Component = () => {

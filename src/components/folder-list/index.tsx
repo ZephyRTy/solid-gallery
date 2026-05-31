@@ -5,7 +5,6 @@ import { useSearchParams } from '@solidjs/router';
 import { debounce } from '../../utils/functions/functions';
 import FolderOpen from '../../icon/folder-open.svg';
 import { Icon } from '../icon';
-import './index.less';
 import { fuzzyMatch } from '../../utils/functions/fuzzy-match';
 interface IProps {
   currentDir: IFolderItemProps;
@@ -46,7 +45,7 @@ export const FolderList: Component<IProps> = (_props) => {
       props.setCurrentDir(props.currentDir);
       setTimeout(() => {
         document
-          .querySelectorAll('.current-dir')[0]
+          .querySelector('[data-current="true"]')
           ?.scrollIntoView({ block: 'center' });
       }, 20);
     }
@@ -63,7 +62,7 @@ export const FolderList: Component<IProps> = (_props) => {
         setDirMap(initialDir);
         setTimeout(() => {
           document
-            .querySelectorAll('.current-dir')[0]
+            .querySelector('[data-current="true"]')
             ?.scrollIntoView({ block: 'center' });
         }, 20);
       }
@@ -101,13 +100,14 @@ export const FolderList: Component<IProps> = (_props) => {
           onInput={handleSearch()}
         />
       </div>
-      <div class="folder-list flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto scrollbar">
         <For each={dirMap}>
           {(item) => (
             <div
-              class="folder-list-item relative h-12 flex items-center justify-between border-b-1 border-slate-300 "
+              class="relative h-12 flex items-center justify-between border-b-1 border-slate-300 px-[10px] font-medium"
+              data-current={item.id === props.currentDir.id ? 'true' : 'false'}
               classList={{
-                'current-dir': item.id === props.currentDir.id,
+                'pl-[30px]': item.id === props.currentDir.id,
                 'hover:text-sky-400 cursor-pointer':
                   item.id !== props.currentDir.id,
               }}
@@ -129,8 +129,10 @@ export const FolderList: Component<IProps> = (_props) => {
                   'opacity-0': item.id !== props.currentDir.id,
                 }}
               />
-              <span>{item.title}</span>
-              <span class="folder-count">{item.count}</span>
+              <span class="max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap">
+                {item.title}
+              </span>
+              <span class="font-[DIN] text-[25px]">{item.count}</span>
             </div>
           )}
         </For>

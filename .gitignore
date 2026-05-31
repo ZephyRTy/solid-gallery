@@ -2,3 +2,12 @@ node_modules
 dist
 ~
 app
+output.css
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+Thumbs.db
+.superpowers/
+coverage/

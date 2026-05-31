@@ -1,11 +1,5 @@
 /* eslint-disable no-unused-vars */
-import {
-  BasicData,
-  BookmarkOfBook,
-  DirectoryInfo,
-  ImageBookmark,
-  Mode,
-} from '../../types/global';
+import { BasicData, DirectoryInfo, Mode } from '../../types/global';
 
 export interface RequestOperator {
   select<A, B>(
@@ -43,16 +37,5 @@ export interface RequestOperator {
   renamePack(packID: number, title: string): Promise<unknown>;
   renameDir(dirID: number, title: string): Promise<unknown>;
   switchDatabase(database: string, tableName: string): boolean;
-  updateGalleryBookmark(
-    bookmark: ImageBookmark,
-    marked: boolean,
-    mode: 'insert' | 'update',
-  ): Promise<unknown>;
-  updateBookmarkOfBook(
-    bookmark: BookmarkOfBook,
-    marked: boolean,
-    mode: 'insert' | 'update',
-  ): Promise<unknown>;
   updateReg(id: number, reg: string): Promise<unknown>;
-  clearBookmark(): Promise<unknown>;
 }

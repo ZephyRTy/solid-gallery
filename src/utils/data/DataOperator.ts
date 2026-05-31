@@ -1,27 +1,18 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 /* eslint-disable no-unused-vars */
+import { defaultCover, packCountOfSinglePage } from '../../types/constant';
+import { defaultCover, packCountOfSinglePage } from '../../types/constant';
 import {
-  defaultCover,
-  getBookmarkThumb,
-  packCountOfSinglePage,
-} from '../../types/constant';
-import {
-  BasicBookmark,
   BasicData,
   BasicFolder,
   DirectoryInfo,
   Mode,
   Model,
 } from '../../types/global';
-import { compress } from '../functions/compressThumb';
 import { convertJsRegToMysqlReg } from '../functions/functions';
 import { hasCover } from '../functions/typeAssertion';
-import {
-  createBookmarkModel,
-  createStarModel,
-  selectionModel,
-} from '../models';
+import { createStarModel, selectionModel } from '../models';
 import { RequestOperator } from '../sql/requestOperator';
 /**
  *
@@ -34,7 +25,6 @@ const sleep = (time: number) => {
 // 对文件进行操作，可与数据进行交互
 export abstract class DataOperator<
   normal extends BasicData,
-  bookmark extends BasicBookmark,
   folder extends BasicFolder,
 > {
   external = false;
@@ -52,7 +42,6 @@ export abstract class DataOperator<
   protected currentPacks = [] as normal[];
   protected dirMap = new Map() as Map<string, DirectoryInfo>;
   protected readonly starModel: Model<normal>;
-  protected readonly bookmarkModel: Model<bookmark>;
   protected selection = selectionModel;
   protected nextTitle = '';
   protected searchCache = {
@@ -70,7 +59,6 @@ export abstract class DataOperator<
     protected databaseConfig: { database: string; tableName: string },
     protected sql: RequestOperator,
   ) {
-    this.bookmarkModel = createBookmarkModel<bookmark>(this.sql);
     this.starModel = createStarModel<normal>(this.sql);
     (async () => {
       await this.sql.checkExternalDriver();
@@ -79,9 +67,6 @@ export abstract class DataOperator<
       });
       this.sql.select<normal, folder>([], Mode.Star).then((res) => {
         this.starModel.data = res as normal[];
-      });
-      this.sql.select<normal, folder>([], Mode.Bookmark).then((res) => {
-        this.bookmarkModel.data = res as unknown as bookmark[];
       });
       this.sql.select<normal, folder>([], Mode.Folder).then((res) => {
         this.directories = res as normal[];
@@ -155,22 +140,8 @@ export abstract class DataOperator<
     );
   }
 
-  protected getBookmarks(page: number): [normal[], number] {
-    this.switchMode(Mode.Bookmark);
-    this.currentPacks = this.bookmarkModel.data as unknown as normal[];
-    return [
-      this.currentPacks.slice(
-        (page - 1) * packCountOfSinglePage,
-        page * packCountOfSinglePage,
-      ),
-      this.bookmarks.length,
-    ];
-  }
   //模式切换
   protected switchMode(mode: Mode) {
-    // if (mode !== Mode.Detail) {
-    //   this.titleWillUpdate(this.modeType(mode));
-    // }
     if (mode !== Mode.DirContent) {
       this.currentDir = -1;
     }
@@ -201,10 +172,6 @@ export abstract class DataOperator<
     ];
   }
 
-  protected get bookmarks() {
-    return this.bookmarkModel.data;
-  }
-
   abstract addNewPack(
     data:
       | { path: string; cover?: string; title: string }
@@ -217,7 +184,6 @@ export abstract class DataOperator<
     this.starModel.update(newStar);
   }
   async showDir(page: number): Promise<[normal[], number]> {
-    // this.switchMode(Mode.Folder);
     let res = await this.sql.select<normal, folder>([], Mode.Folder);
     this.currentPacks = res as normal[];
     return [
@@ -244,8 +210,6 @@ export abstract class DataOperator<
       return await this.getDirContent(1, page, dirId);
     } else if (mode === Mode.Star) {
       return [this.getStared(page), this.starModel.data.length];
-    } else if (mode === Mode.Bookmark) {
-      return this.getBookmarks(page);
     } else if (mode === Mode.Folder) {
       return await this.showDir(page);
     }
@@ -264,7 +228,6 @@ export abstract class DataOperator<
   }
   //刷新
   refresh() {
-    //this.switchMode(Mode.Init);
     this.refreshFn((v) => !v);
   }
 
@@ -276,16 +239,6 @@ export abstract class DataOperator<
   loadPrevPage() {
     let url = this.prevPage;
     return url;
-  }
-
-  async UpdateBookmark(newBookmark: bookmark, marked: boolean = true) {
-    await this.bookmarkModel.update(newBookmark, marked);
-    if (hasCover(newBookmark)) {
-      await compress(
-        newBookmark.path + newBookmark.cover,
-        getBookmarkThumb(newBookmark),
-      );
-    }
   }
 
   //更新选区
@@ -334,8 +287,6 @@ export abstract class DataOperator<
         return '首页';
       case Mode.Detail:
         return 'Detail';
-      case Mode.Bookmark:
-        return 'Bookmark';
       case Mode.Folder:
         return 'Directories';
       case Mode.Star:
@@ -438,23 +389,15 @@ export abstract class DataOperator<
     promises.push(this.sql.mapDir());
     promises.push(this.sql.getCount());
     promises.push(this.sql.select<normal, folder>([], Mode.Star));
-    promises.push(this.sql.select<normal, folder>([], Mode.Bookmark));
     promises.push(this.sql.select<normal, folder>([], Mode.Folder));
-    let [dirMap, total, stared, bookmark, showDir] =
-      await Promise.all(promises);
+    let [dirMap, total, stared, showDir] = await Promise.all(promises);
     this.dirMap = dirMap;
     this.total = total;
     this.starModel.data = stared;
-    this.bookmarkModel.data = bookmark;
     this.directories = showDir;
     return true;
   }
 
-  async clearBookmark() {
-    return this.sql.clearBookmark().then(() => {
-      this.bookmarkModel.clear();
-    });
-  }
   removePack(pack: normal) {
     if (pack.parent) {
       this.removeFileFromDir(pack.id, pack.parent);
@@ -462,13 +405,9 @@ export abstract class DataOperator<
 
     this.currentPacks = this.currentPacks.filter((e) => e.id !== pack.id);
     this.starModel.remove(pack.id);
-    this.bookmarkModel.remove(pack.id);
     this.searchCache.res = this.searchCache.res.filter((e) => e.id !== pack.id);
     this.deletePack(pack.id).then(() => {
       this.refresh();
     });
-  }
-  getProgress(id: number) {
-    return this.bookmarkModel.data.find((v) => v.id === id)?.url;
   }
 }

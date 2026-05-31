@@ -1,5 +1,4 @@
 import { deltaLine, fontSize, galleryConfig } from './config';
-import { ImageBookmark } from './global';
 
 /* eslint-disable no-unused-vars */
 const path = window.require('path');
@@ -43,10 +42,7 @@ const {
   maxRetryCount,
 } = galleryConfig;
 export default galleryConfig;
-export const defaultCover = 'D:\\webDemo\\desktop-reader\\public\\blank.jpg';
-export const getBookmarkThumb = (bookmark: ImageBookmark) => {
-  return `bookmark-thumb-${new Date(bookmark.timeStamp).getTime()}.jpg`;
-};
+export const defaultCover = 'assets/blank.jpg';
 
 export const DELTA_HEIGHT = lineHeight * (deltaLine as number);
 export const CATALOG_REG =

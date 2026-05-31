@@ -5,7 +5,7 @@ import { IndexPage } from './pages';
 import { Pack } from './pages/detail';
 import { Mode } from '../types/global';
 import { FolderPage } from './pages/folder';
-import './index.less';
+import './index.css';
 import signalStore from '../utils/shared-signal';
 import { ImgServer } from '../server/imgServer';
 

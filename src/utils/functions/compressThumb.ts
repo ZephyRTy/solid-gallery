@@ -50,14 +50,6 @@ async function canvasToDataURL(
     return canvas.toDataURL('image/jpeg', quality || 0.5);
   }
   let dataBuffer = Buffer.from(data, 'base64');
-  if (thumbName.includes('bookmark-thumb')) {
-    const files = fs.readdirSync(dest);
-    files.forEach((file) => {
-      if (file.includes('bookmark-thumb')) {
-        fs.unlinkSync(`${dest}/${file}`);
-      }
-    });
-  }
   await fs.writeFile(path.join(dest, thumbName), dataBuffer, (err) => {
     if (err) {
       console.log('写入图片错误', err);
