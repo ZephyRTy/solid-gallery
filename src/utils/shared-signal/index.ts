@@ -9,6 +9,7 @@ const signalStore = initStore({
   selectedPacks: asSignal([] as number[]),
   isManaging: false,
   folderDialogVisible: false,
+  drawerVisible: false,
   imageItemContextMenuPosition: {
     x: 0,
     y: 0,
