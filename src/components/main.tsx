@@ -5,7 +5,7 @@ import { IndexPage } from './pages';
 import { Pack } from './pages/detail';
 import { FolderPage } from './pages/folder';
 import './index.css';
-import signalStore from '../utils/shared-signal';
+import { setImageItemContextMenuPosition } from '../utils/shared-signal';
 import { ImgServer } from '../server/imgServer';
 
 export const MainContainer: Component = () => {
@@ -20,7 +20,7 @@ export const MainContainer: Component = () => {
     <div
       class="mx-auto h-full flex bg-white"
       onClick={() => {
-        signalStore.imageItemContextMenuPosition.visible.set(false);
+        setImageItemContextMenuPosition('visible', false);
       }}
     >
       <HashRouter root={MainContent}>

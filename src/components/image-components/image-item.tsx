@@ -1,5 +1,5 @@
 import { Component, Setter } from 'solid-js';
-import signalStore from '../../utils/shared-signal';
+import { setImageItemContextMenuPosition } from '../../utils/shared-signal';
 import { produce } from 'solid-js/store';
 import { NormalImage } from '../../types/global';
 
@@ -28,7 +28,7 @@ export const ImageItem: Component<IProps> = (props) => {
         const relativeX = e.clientX - parentRect.left;
         const relativeY =
           e.clientY + e.currentTarget.parentElement!.scrollTop - parentRect.top;
-        signalStore.imageItemContextMenuPosition.pureSet(
+        setImageItemContextMenuPosition(
           produce((draft) => {
             draft.x = relativeX;
             draft.y = relativeY;
