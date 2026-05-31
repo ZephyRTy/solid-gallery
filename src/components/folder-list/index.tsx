@@ -8,7 +8,7 @@ import {
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { galleryOperator } from '../../utils/data/galleryOperator';
-import { useSearchParams } from '@solidjs/router';
+
 import { debounce } from '../../utils/functions/functions';
 import { fuzzyMatch } from '../../utils/functions/fuzzy-match';
 
@@ -27,7 +27,6 @@ export interface IFolderItemProps {
 export const FolderList: Component<IProps> = (_props) => {
   const [dirMap, setDirMap] = createStore<IFolderItemProps[]>([]);
   const [initialDir, setInitialDir] = createStore<IFolderItemProps[]>([]);
-  const [, setSearchParams] = useSearchParams();
   const [addingDir, setAddingDir] = createSignal(false);
   const [contextMenu, setContextMenu] = createSignal<{
     x: number;
