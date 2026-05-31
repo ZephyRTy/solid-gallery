@@ -12,33 +12,7 @@ export const TopBar: Component<{ isPackPage: boolean }> = (props) => {
       <h1 class="flex-1 text-center text-sm text-stone-400 tracking-wider select-none">
         {signalStore.title()}
       </h1>
-      {/* Select toggle + window controls */}
-      <div class="flex items-center gap-3 no-drag ml-auto">
-        <Show when={!props.isPackPage}>
-          <button
-            aria-label="Toggle select mode"
-            onClick={() => signalStore.isManaging.set((v) => !v)}
-            class="flex items-center justify-center w-6 h-6 rounded text-stone-300 hover:text-stone-600 transition-colors"
-            classList={{
-              'text-accent-violet': signalStore.isManaging(),
-            }}
-            title="选择模式"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M9 11l3 3L22 4" />
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-            </svg>
-          </button>
-        </Show>
+      <div class="flex items-center gap-1 no-drag ml-auto">
         <button
           aria-label="Minimize"
           onClick={() => ipcRenderer.send('min')}
