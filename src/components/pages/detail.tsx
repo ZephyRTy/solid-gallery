@@ -40,6 +40,7 @@ export const Pack: Component = () => {
     setPackInfo(pack || {});
     const packPath = pack?.path;
     if (!packPath || !fs.existsSync(packPath)) return;
+    signalStore.detailPackInfo.set(pack || null);
     window.sessionStorage.setItem('currentDetailPage', JSON.stringify(pack));
 
     const images = fs

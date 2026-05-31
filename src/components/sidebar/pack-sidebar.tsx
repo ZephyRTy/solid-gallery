@@ -1,14 +1,12 @@
 import { Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { openInExplorer } from '../../utils/functions/process';
-import { NormalImage } from '../../types/global';
+import signalStore from '../../utils/shared-signal';
 
 export const PackSidebar: Component = () => {
   const navigate = useNavigate();
 
-  const packInfo = JSON.parse(
-    sessionStorage.getItem('currentDetailPage') || '{}',
-  ) as NormalImage | null;
+  const packInfo = () => signalStore.detailPackInfo();
 
   const handleBack = () => {
     const from = sessionStorage.getItem('from');
@@ -21,8 +19,9 @@ export const PackSidebar: Component = () => {
   };
 
   const handleOpen = () => {
-    if (packInfo?.path) {
-      openInExplorer(packInfo.path);
+    const info = packInfo();
+    if (info?.path) {
+      openInExplorer(info.path);
     }
   };
 
@@ -35,9 +34,9 @@ export const PackSidebar: Component = () => {
         </span>
         <span
           class="text-sm font-semibold text-stone-700 leading-tight truncate"
-          title={packInfo?.title}
+          title={packInfo()?.title}
         >
-          {packInfo?.title || '-'}
+          {packInfo()?.title || '-'}
         </span>
       </div>
 
