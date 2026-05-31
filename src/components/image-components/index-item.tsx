@@ -73,6 +73,7 @@ export const PackItem: Component<IProps> = (props) => {
         animate-fade-in"
       classList={{
         'ring-2 ring-accent-violet': signalStore.isManaging() && selected(),
+        'ring-1 ring-stone-200': signalStore.isManaging() && !selected(),
       }}
     >
       <Show when={signalStore.isManaging()}>
@@ -118,7 +119,15 @@ export const PackItem: Component<IProps> = (props) => {
         {!imgLoaded() && <div class="absolute inset-0 skeleton" />}
       </Show>
 
-      <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/50 via-black/20 to-transparent">
+      <div
+        class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t via-black/20 to-transparent transition-colors duration-300"
+        classList={{
+          'from-black/50': !signalStore.isManaging(),
+          'from-violet-600/50': signalStore.isManaging(),
+          'via-violet-600/20': signalStore.isManaging(),
+          'via-black/20': !signalStore.isManaging(),
+        }}
+      >
         <div class="flex items-center justify-between gap-2">
           <span
             class="text-sm text-white font-medium truncate flex-1"
