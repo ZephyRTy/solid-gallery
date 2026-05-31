@@ -1,6 +1,7 @@
 import {
   Component,
   For,
+  Show,
   createEffect,
   createSignal,
   onCleanup,
@@ -8,88 +9,72 @@ import {
 import { galleryOperator } from '../../utils/data/galleryOperator';
 import { Mode, NormalImage } from '../../types/global';
 import { PackItem } from '../image-components/index-item';
-import { createStore } from 'solid-js/store';
 import { useParams, useSearchParams } from '@solidjs/router';
 import { itemsOfEachPage } from '../../types/constant';
 import signalStore from '../../utils/shared-signal';
 import { FileDrop } from '../file-drop';
-import { FolderDialog } from '../dialog/folder-dialog';
-import { IFolderItemProps } from '../folder-list';
-import { PageToolbar } from '../page-toolbar';
 
-const path = window.require('path');
+import { PageToolbar } from '../page-toolbar';
 
 const getTitle = (mode: Mode, search?: string) => {
   let title = '';
   switch (mode) {
     case Mode.Normal:
-      title = '首页';
+      title = 'Gallery';
       break;
     case Mode.Star:
-      title = '收藏';
+      title = 'Starred';
       break;
     default:
-      title = '首页';
+      title = 'Gallery';
   }
-  if (search) {
-    return `${search} in ${title}`;
-  }
-  return title;
+  return search ? `${search} — ${title}` : title;
 };
 
 const getCoverPath = (img: NormalImage) => {
   return img.path ? `${img.path}/thumb.jpg` : img.cover;
 };
 
-let timer: NodeJS.Timeout;
 export const IndexPage: Component = () => {
-  let colRef = null as unknown as HTMLDivElement;
-  const [packList, setPackList] = createSignal([] as unknown as NormalImage[]);
+  let scrollRef = null as unknown as HTMLDivElement;
+  const [packList, setPackList] = createSignal<NormalImage[]>([]);
   const [searchParams] = useSearchParams();
   const [selectAll, setSelectAll] = createSignal(false);
-  const lastDir = sessionStorage.getItem('lastSelectDir');
-
-  const [currentDir, setCurrentDir] = createStore<IFolderItemProps>(
-    JSON.parse(lastDir || '{}') || {
-      id: -1,
-      title: '',
-      count: 0,
-    },
-  );
+  const [isLoading, setIsLoading] = createSignal(true);
   const store = signalStore;
   const params = useParams();
+  const search = () => searchParams.search || '';
+
   createEffect(async () => {
-    store.refresh();
+    setIsLoading(true);
     setPackList([]);
-    colRef?.scrollTo(0, 0);
+    scrollRef?.scrollTo(0, 0);
     const mode = params.mode as Mode;
-    store.title.set(getTitle(mode, searchParams.search));
-    const [packList, total] = await galleryOperator.getPacks(
+    store.title.set(getTitle(mode, search()));
+    const [packs, total] = await galleryOperator.getPacks(
       +(searchParams.page || 1),
       mode,
-      { search: searchParams.search || '' },
+      { search: search() },
     );
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      setPackList([...packList]);
-    }, 300);
+    setPackList(packs);
+    setIsLoading(false);
     store.page.set(Math.ceil(total / itemsOfEachPage));
   });
 
   createEffect(() => {
-    const handleSelectAll = (e: KeyboardEvent) => {
-      const isManaging = signalStore.isManaging();
-      if (!isManaging) {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        signalStore.isManaging.set(false);
         return;
       }
+      if (!signalStore.isManaging()) return;
       if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
         setSelectAll(!selectAll());
       }
     };
-    document.addEventListener('keydown', handleSelectAll);
-    onCleanup(() => {
-      document.removeEventListener('keydown', handleSelectAll);
-    });
+    document.addEventListener('keydown', handleKey);
+    onCleanup(() => document.removeEventListener('keydown', handleKey));
   });
 
   createEffect(() => {
@@ -100,8 +85,7 @@ export const IndexPage: Component = () => {
 
   return (
     <div
-      class="page"
-      ref={colRef}
+      class="flex-1 flex flex-col min-h-0 overflow-hidden"
       onDragEnter={(e) => {
         signalStore.fileDropVisible.set(true);
         e.preventDefault();
@@ -116,28 +100,49 @@ export const IndexPage: Component = () => {
         e.stopPropagation();
       }}
     >
-      {/* <Icon
-        icon={MultiSelected}
-        size={24}
-        class="absolute left-6 top-6  cursor-pointer"
-        classList={{
-          'fill-sky-400': isManaging(),
-          'hover:fill-slate-500': !isManaging(),
-          'fill-slate-400': !isManaging(),
-        }}
-        onClick={() => {
-          setIsManaging(!isManaging());
-          store.selectedPacks.set([]);
-        }}
-      /> */}
-      <FolderDialog />
       <FileDrop />
-      <div class="overflow-auto flex-1 flex justify-center items-center flex-wrap h-full gap-7 py-4">
-        <PageToolbar selectedDir={currentDir} />
 
-        <For each={packList()}>
-          {(e, index) => {
-            return (
+      <h2 class="px-8 pt-8 pb-4 text-4xl tracking-tight font-semibold text-stone-800">
+        {signalStore.title()}
+      </h2>
+
+      <div ref={scrollRef} class="flex-1 overflow-auto px-8 pb-4">
+        <Show when={isLoading()}>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            {Array.from({ length: 8 }).map(() => (
+              <div class="aspect-[3/4] rounded-xl skeleton" />
+            ))}
+          </div>
+        </Show>
+
+        <Show when={!isLoading() && packList().length === 0}>
+          <div class="flex flex-col items-center justify-center py-20 text-stone-300">
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+            <p class="mt-4 text-lg">
+              {search()
+                ? `No results for "${search()}"`
+                : 'No packs yet. Drag & drop a folder to get started.'}
+            </p>
+          </div>
+        </Show>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <PageToolbar />
+          <For each={packList()}>
+            {(e, index) => (
               <PackItem
                 src={decodeURIComponent(getCoverPath(e))}
                 info={e}
@@ -149,9 +154,9 @@ export const IndexPage: Component = () => {
                   setPackList([...list]);
                 }}
               />
-            );
-          }}
-        </For>
+            )}
+          </For>
+        </div>
       </div>
     </div>
   );
