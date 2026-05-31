@@ -6,16 +6,14 @@ export const SelectionBar: Component = () => {
     <div
       class="fixed bottom-0 inset-x-0 z-overlay transition-all duration-300"
       classList={{
-        'h-14 bg-white border-t border-stone-200 shadow-xl': signalStore.isManaging(),
+        'h-14 bg-white border-t border-stone-200 shadow-xl':
+          signalStore.isManaging(),
         'h-10 bg-white/80 backdrop-blur-sm': !signalStore.isManaging(),
       }}
     >
       <div class="h-full flex items-center justify-between px-6">
         {/* Left: count (only when managing) */}
-        <Show
-          when={signalStore.isManaging()}
-          fallback={<span />}
-        >
+        <Show when={signalStore.isManaging()} fallback={<span />}>
           <span class="text-sm text-stone-500 tabular-nums">
             已选 {signalStore.selectedPacks().length} 个
           </span>
