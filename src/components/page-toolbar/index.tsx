@@ -1,17 +1,11 @@
-import { Component, createEffect, createSignal, splitProps } from 'solid-js';
+import { Component, createEffect, createSignal } from 'solid-js';
 import MultiSelected from '../../icon/multi-select.svg';
-import AddToFolder from '../../icon/add-to-folder.svg';
 import { Icon } from '../icon';
 import signalStore from '../../utils/shared-signal';
-import { IFolderItemProps } from '../folder-list';
 
-interface IProps {
-  selectedDir?: IFolderItemProps;
-}
-export const PageToolbar: Component<IProps> = (properties) => {
+export const PageToolbar: Component = () => {
   const isManaging = signalStore.isManaging;
   const [unfold, setUnfold] = createSignal(false);
-  const [prop] = splitProps(properties, ['selectedDir']);
 
   createEffect(() => {
     setUnfold(isManaging());
@@ -19,11 +13,12 @@ export const PageToolbar: Component<IProps> = (properties) => {
       signalStore.selectedPacks.set([]);
     }
   });
+
   return (
     <div
       class="w-6 fixed left-24 top-20 h-[30px] overflow-hidden transition-all duration-300"
       classList={{
-        'h-[100px]': unfold(),
+        'h-[60px]': unfold(),
       }}
     >
       <div class="flex flex-col space-y-[10px]">
@@ -32,31 +27,12 @@ export const PageToolbar: Component<IProps> = (properties) => {
           size={24}
           class="cursor-pointer"
           classList={{
-            'fill-sky-400': isManaging(),
-            'hover:fill-slate-500': !isManaging(),
-            'fill-slate-400': !isManaging(),
+            'fill-accent-violet': isManaging(),
+            'hover:fill-stone-500': !isManaging(),
+            'fill-stone-400': !isManaging(),
           }}
           onClick={() => {
             signalStore.isManaging.set((v) => !v);
-            // signalStore.selectedPacks.set([]);
-          }}
-        />
-        <Icon
-          icon={AddToFolder}
-          size={24}
-          class={`cursor-pointer  ${signalStore.selectedPacks().length ? 'fill-sky-400' : 'fill-slate-400'}`}
-          onClick={() => {
-            if (!signalStore.selectedPacks().length) {
-              return;
-            }
-            signalStore.folderDialogVisible.set(true);
-            // galleryOperator
-            //   .addFileToDir(prop.selectedDir!.id, signalStore.selectedPacks())
-            //   .then(() => {
-            //     signalStore.folderDialogVisible.set(false);
-            //     signalStore.selectedPacks.set([]);
-            //     signalStore.refresh.set((v) => !v);
-            //   });
           }}
         />
       </div>
