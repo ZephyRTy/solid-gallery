@@ -14,8 +14,6 @@ import { itemsOfEachPage } from '../../types/constant';
 import signalStore from '../../utils/shared-signal';
 import { FileDrop } from '../file-drop';
 
-import { PageToolbar } from '../page-toolbar';
-
 const getTitle = (mode: Mode, search?: string) => {
   let title = '';
   switch (mode) {
@@ -140,7 +138,7 @@ export const IndexPage: Component = () => {
         </Show>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-          <PageToolbar />
+
           <For each={packList()}>
             {(e, index) => (
               <PackItem
