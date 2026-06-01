@@ -120,26 +120,27 @@ export class GalleryOperator extends DataOperator<NormalImage, ImageDirectory> {
         newPack.cover = '/' + valid || '';
       }
       success.push(
-        this.sql.insertPack(newPack, false).then((res) => {
-          if (!res) {
-            result.push({
-              title: e.title,
-              type: '重复',
-            });
-          } else {
+        this.sql
+          .insertPack(newPack, false)
+          .then(() => {
             successCount++;
             result.push({
               title: e.title,
               type: '成功',
             });
-          }
-          compress(img).then(() => {
-            if (i === data.length - 1 && successCount) {
-              this.switchMode(Mode.Init);
-              this.refresh();
-            }
-          });
-        }),
+            compress(img).then(() => {
+              if (i === data.length - 1 && successCount) {
+                this.switchMode(Mode.Init);
+                this.refresh();
+              }
+            });
+          })
+          .catch(() => {
+            result.push({
+              title: e.title,
+              type: '重复',
+            });
+          }),
       );
     });
     return Promise.all(success).then(() => {

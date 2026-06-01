@@ -37,6 +37,7 @@
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "@solidjs/router": "^0.13.1",
+    "request": "^2.88.2",
     "sharp": "^0.33.5",
     "solid-js": "^1.8.11",
     "sqlite3": "^5.1.2"
