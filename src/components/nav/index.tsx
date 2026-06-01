@@ -2,6 +2,7 @@ import { useSearchParams } from '@solidjs/router';
 import {
   Component,
   For,
+  Show,
   createEffect,
   createSignal,
   splitProps,
@@ -17,6 +18,9 @@ export const Nav: Component<IProps> = (props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [curPage, setPage] = createSignal(1);
   const [prop] = splitProps(props, ['total']);
+  const [editing, setEditing] = createSignal(false);
+  const [jumpValue, setJumpValue] = createSignal('');
+  let jumpInput: HTMLInputElement | undefined;
 
   createEffect(() => {
     setPage(parseInt(searchParams.page || '1'));
@@ -35,6 +39,15 @@ export const Nav: Component<IProps> = (props) => {
   const goTo = (page: number) => {
     if (page < 1 || page > prop.total) return;
     setSearchParams({ page });
+  };
+
+  const handleJump = () => {
+    const n = parseInt(jumpValue());
+    if (n >= 1 && n <= prop.total) {
+      goTo(n);
+    }
+    setEditing(false);
+    setJumpValue('');
   };
 
   const pageBtn =
@@ -138,9 +151,51 @@ export const Nav: Component<IProps> = (props) => {
           <path d="M6 17l5-5-5-5" />
         </svg>
       </button>
-      <span class="text-xs text-stone-400 ml-2">
-        {curPage()} / {prop.total}
-      </span>
+
+      {/* Quick jump */}
+      <div class="ml-2 flex items-center">
+        <Show
+          when={editing()}
+          fallback={
+            <button
+              onClick={() => {
+                setEditing(true);
+                setJumpValue(String(curPage()));
+                setTimeout(() => jumpInput?.focus(), 50);
+              }}
+              class="text-xs text-stone-400 hover:text-stone-600 transition-colors cursor-pointer tabular-nums"
+              title="点击跳转"
+            >
+              {curPage()} / {prop.total}
+            </button>
+          }
+        >
+          <div class="flex items-center gap-1">
+            <input
+              ref={jumpInput}
+              type="number"
+              min={1}
+              max={prop.total}
+              value={jumpValue()}
+              onInput={(e) => setJumpValue(e.currentTarget.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleJump();
+                if (e.key === 'Escape') {
+                  setEditing(false);
+                  setJumpValue('');
+                }
+              }}
+              onBlur={() => {
+                setEditing(false);
+                setJumpValue('');
+              }}
+              class="w-12 h-7 px-2 rounded-lg border border-accent-violet outline-none text-xs text-center text-stone-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              autofocus
+            />
+            <span class="text-xs text-stone-300">/ {prop.total}</span>
+          </div>
+        </Show>
+      </div>
     </nav>
   );
 };
