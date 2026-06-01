@@ -44,6 +44,7 @@ export const IndexPage: Component = () => {
   const search = () => searchParams.search || '';
 
   createEffect(async () => {
+    store.refresh();
     setIsLoading(true);
     setPackList([]);
     scrollRef?.scrollTo(0, 0);

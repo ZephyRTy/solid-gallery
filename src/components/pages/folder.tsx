@@ -30,6 +30,7 @@ export const FolderPage: Component = () => {
   });
 
   createEffect(async () => {
+    signalStore.refresh();
     if (!currentDir.id || currentDir.id < 0) return;
     setIsLoading(true);
     setPackList([]);
