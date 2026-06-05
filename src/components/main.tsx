@@ -9,16 +9,10 @@ import { setImageItemContextMenuPosition } from '../utils/shared-signal';
 import { ImgServer } from '../server/imgServer';
 
 export const MainContainer: Component = () => {
-  onMount(() => {
-    ImgServer.getInstance().on();
-    onCleanup(() => {
-      ImgServer.getInstance().off();
-    });
-  });
 
   return (
     <div
-      class="mx-auto h-full flex bg-white"
+      class="mx-auto h-full flex"
       onClick={() => {
         setImageItemContextMenuPosition('visible', false);
       }}

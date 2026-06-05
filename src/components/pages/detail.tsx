@@ -120,11 +120,18 @@ export const Pack: Component = () => {
   };
 
   return (
-    <div class="flex flex-col flex-1 min-h-0 overflow-hidden bg-stone-50">
-      <h2 class="px-8 pt-8 pb-4 text-4xl tracking-tight font-semibold text-stone-800">
-        {packInfo.title}
-      </h2>
-      <div class="flex-1 overflow-auto px-8 pb-4" ref={pageEle}>
+    <div class="flex flex-col flex-1 min-h-0">
+      <div class="mb-14 flex items-end justify-between border-b border-white/5 pb-8">
+        <div>
+          <h2 class="font-display-lg text-[42px] leading-tight text-on-surface mb-2">
+            {packInfo.title}
+          </h2>
+          <p class="font-body-md text-on-surface-variant/60">
+            {fileList().length} images
+          </p>
+        </div>
+      </div>
+      <div ref={pageEle} class="flex-1">
         <PackPageContext />
         <Show when={srcNum() > -1}>
           <Zoom
@@ -136,18 +143,18 @@ export const Pack: Component = () => {
           />
         </Show>
         <Show when={isLoading()}>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
             {Array.from({ length: 8 }).map(() => (
               <div class="aspect-square rounded-xl skeleton" />
             ))}
           </div>
         </Show>
         <Show when={!isLoading() && imageList().length === 0}>
-          <div class="flex flex-col items-center justify-center py-20 text-stone-300">
-            <p class="text-lg">No images found</p>
+          <div class="flex flex-col items-center justify-center py-20 text-on-surface-variant/40">
+            <p class="font-body-md text-lg">No images found</p>
           </div>
         </Show>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
           <For each={imageList()}>
             {(e, index) => (
               <ImageItem

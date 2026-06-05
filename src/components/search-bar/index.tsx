@@ -25,17 +25,17 @@ export const SearchBar: Component = () => {
   };
 
   return (
-    <div class="no-drag flex items-center gap-2 h-8 px-3 rounded-full bg-stone-100/80 border border-stone-200/60 hover:bg-white hover:shadow-sm focus-within:bg-white focus-within:border-accent-violet focus-within:shadow-sm transition-all duration-200 w-60">
+    <div class="no-drag relative flex items-center group w-60">
       <svg
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#a8a29e"
+        stroke="currentColor"
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="shrink-0"
+        class="absolute left-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors shrink-0"
       >
         <circle cx="11" cy="11" r="8" />
         <path d="M21 21l-4.3-4.3" />
@@ -50,12 +50,12 @@ export const SearchBar: Component = () => {
           if (e.key === 'Enter') submit();
           if (e.key === 'Escape') clear();
         }}
-        class="flex-1 outline-none bg-transparent text-sm text-stone-700 placeholder-stone-300 min-w-0"
+        class="w-full bg-surface-container-high/40 border border-white/5 rounded-full py-2 pl-12 pr-10 text-sm focus:ring-1 focus:ring-primary/40 focus:bg-surface-container-high/60 transition-all placeholder:text-on-surface-variant/30 text-on-surface outline-none"
       />
       {value() && (
         <button
           onClick={clear}
-          class="shrink-0 w-4 h-4 flex items-center justify-center rounded-full text-stone-300 hover:text-stone-500 hover:bg-stone-200 transition-colors"
+          class="absolute right-3 shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-on-surface-variant/30 hover:text-on-surface-variant/60 hover:bg-white/5 transition-colors"
           aria-label="Clear search"
         >
           <svg

@@ -48,11 +48,12 @@ export const Checkbox: Component<IProps> = (props) => {
         for={id}
         class="w-full h-full rounded border transition-all duration-200 flex items-center justify-center"
         classList={{
-          'bg-accent-violet border-accent-violet': selected(),
-          'border-stone-300 bg-white': !selected() && !mainProps.disabled,
-          'border-stone-200 bg-stone-100 cursor-not-allowed':
+          'bg-primary border-primary': selected(),
+          'border-outline-variant/40 bg-surface-container-high':
+            !selected() && !mainProps.disabled,
+          'border-outline-variant/20 bg-surface-container-low cursor-not-allowed':
             mainProps.disabled,
-          'cursor-pointer hover:border-accent-violet':
+          'cursor-pointer hover:border-primary':
             !mainProps.disabled && !selected(),
           'animate-pop': selected(),
         }}

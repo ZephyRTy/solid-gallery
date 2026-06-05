@@ -50,7 +50,7 @@ export class ImgServer {
     }
     this.titleMap = new Map();
     this.isActive = true;
-    this.server.listen('8081', () => console.log('http://localhost:8081/'));
+    this.server.listen('8081', () => {});
     const ins = this;
     this.server.on('request', (req: any, res: any) => {
       let data = [] as any[];

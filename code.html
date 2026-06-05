@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina Gallery | Premium Digital Assets</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Manrope:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#c7c4d8",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "surface-variant": "#2d3449",
+                        "inverse-on-surface": "#283044",
+                        "surface-bright": "#31394d",
+                        "on-primary-container": "#dad7ff",
+                        "surface-container-highest": "#2d3449",
+                        "error": "#ffb4ab",
+                        "primary-container": "#4f46e5",
+                        "surface-tint": "#c3c0ff",
+                        "primary": "#c3c0ff",
+                        "background": "#0b1326",
+                        "inverse-primary": "#4d44e3",
+                        "error-container": "#93000a",
+                        "secondary": "#d2bbff",
+                        "tertiary-fixed": "#89f5e7",
+                        "on-tertiary": "#003732",
+                        "on-secondary-container": "#c9aeff",
+                        "surface-container-lowest": "#060e20",
+                        "secondary-fixed-dim": "#d2bbff",
+                        "tertiary-container": "#006c63",
+                        "tertiary": "#6bd8cb",
+                        "on-error": "#690005",
+                        "on-secondary": "#3f008e",
+                        "on-surface": "#dae2fd",
+                        "inverse-surface": "#dae2fd",
+                        "primary-fixed": "#e2dfff",
+                        "on-primary": "#1d00a5",
+                        "outline-variant": "#464555",
+                        "surface-container-low": "#131b2e",
+                        "surface": "#0b1326",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "secondary-fixed": "#eaddff",
+                        "on-secondary-fixed": "#25005a",
+                        "on-background": "#dae2fd",
+                        "on-secondary-fixed-variant": "#5a00c6",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "surface-container": "#171f33",
+                        "on-tertiary-container": "#81eddf",
+                        "surface-dim": "#0b1326",
+                        "outline": "#918fa1",
+                        "surface-container-high": "#222a3d",
+                        "on-primary-fixed": "#0f0069",
+                        "secondary-container": "#6001d1",
+                        "tertiary-fixed-dim": "#6bd8cb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "24px",
+                        "unit": "8px",
+                        "container-max": "1440px",
+                        "margin-desktop": "80px",
+                        "gutter": "32px",
+                        "sidebar-width": "280px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Playfair Display"],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-md": ["Playfair Display"],
+                        "body-md": ["Manrope"],
+                        "body-lg": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background: radial-gradient(circle at 0% 0%, #171f33 0%, #0b1326 100%);
+            font-family: 'Manrope', sans-serif;
+            overflow: hidden;
+        }
+        .glass-sidebar {
+            background: rgba(19, 27, 46, 0.7);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(199, 196, 216, 0.08);
+        }
+        .sidebar-active {
+            background: linear-gradient(90deg, rgba(195, 192, 255, 0.1) 0%, transparent 100%);
+            color: #c3c0ff;
+            border-left: 2px solid #c3c0ff;
+        }
+        .image-card-hover:hover .view-overlay {
+            opacity: 1;
+        }
+        .image-card-hover:hover .image-zoom {
+            transform: scale(1.03);
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .premium-shadow {
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .premium-shadow:hover {
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body class="flex h-screen w-screen text-on-surface">
+<!-- Glassmorphism Sidebar -->
+<aside class="fixed left-0 top-0 bottom-0 w-[280px] flex flex-col py-10 px-6 glass-sidebar z-50">
+<div class="mb-12 px-2 flex items-center gap-4">
+<div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary border border-primary/30">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">gallery_thumbnail</span>
+</div>
+<div>
+<h1 class="font-display-lg text-[22px] text-primary tracking-tight leading-none">Lumina</h1>
+<p class="font-label-sm text-[10px] text-on-surface-variant/60 uppercase tracking-widest mt-1">Digital Curator</p>
+</div>
+</div>
+<button class="mb-10 mx-1 py-3 px-4 bg-primary text-on-primary rounded-full font-body-md text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-[18px]">add</span>
+        New Acquisition
+    </button>
+<nav class="flex-1 space-y-2">
+<a class="sidebar-active flex items-center gap-4 px-4 py-3 rounded-r-full transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[22px]">auto_awesome_motion</span>
+<span class="font-body-md text-sm font-medium">Collections</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant/70 hover:text-on-surface hover:bg-white/5 transition-all duration-300 rounded-r-full group" href="#">
+<span class="material-symbols-outlined text-[22px] group-hover:text-primary">star_outline</span>
+<span class="font-body-md text-sm">Privileged</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant/70 hover:text-on-surface hover:bg-white/5 transition-all duration-300 rounded-r-full group" href="#">
+<span class="material-symbols-outlined text-[22px] group-hover:text-primary">folder_open</span>
+<span class="font-body-md text-sm">Archives</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 pt-8 border-t border-outline-variant/10">
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant/50 hover:text-on-surface transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="font-body-md text-sm">Preferences</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant/50 hover:text-on-surface transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+<span class="font-body-md text-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Shell -->
+<main class="ml-[280px] flex-1 flex flex-col h-screen relative overflow-hidden">
+<!-- Refined TopNavBar -->
+<header class="fixed top-0 right-0 left-[280px] h-[80px] flex items-center justify-between px-10 bg-transparent z-40">
+<div class="flex items-center gap-6">
+<h2 class="font-display-lg text-2xl text-on-surface tracking-tight">Gallery</h2>
+</div>
+<!-- Elegant Search Bar -->
+<div class="flex-1 max-w-lg mx-12 group">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-high/40 border border-white/5 rounded-full py-2.5 pl-12 pr-6 text-sm focus:ring-1 focus:ring-primary/40 focus:bg-surface-container-high/60 transition-all placeholder:text-on-surface-variant/30 text-on-surface outline-none" placeholder="Search the collection..." type="text"/>
+</div>
+</div>
+<!-- Action Icons -->
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant/60 hover:text-on-surface hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined text-[20px]">notifications_none</span>
+</button>
+<div class="h-4 w-[1px] bg-outline-variant/20 mx-2"></div>
+<div class="w-10 h-10 rounded-full border border-primary/20 overflow-hidden cursor-pointer hover:border-primary/50 transition-all">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbqrje5CpoShjZCOGBdF4TPoNKwssBLXWhq4zKYZbwepA4wl0TH0O-cEBElLjxSncxqPZJNQ7Ce3yTICBiAgMtvwsGBak7PR_ZuQzEQwNaRxq1kqcJnCvbovT0yRTmgwu1Qo9T2jGnEy9rMBgP8hjU61XGjL_jUm628P8SRrxItkH8AC3l08nOKD6xXqx9HGl6vNYElASOCDTHACNWmswdnYztcYOodcxy_IDdbSGFZGjfDViRPTIBA5035R0zqOWNKyGUbOB5eJJe"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="mt-[80px] flex-1 overflow-y-auto scroll-hide p-10 pb-32">
+<!-- Header Section -->
+<div class="mb-14 flex items-end justify-between border-b border-white/5 pb-8">
+<div>
+<h3 class="font-display-lg text-[42px] leading-tight text-on-surface mb-2">My Library</h3>
+<p class="font-body-md text-on-surface-variant/60 max-w-md">The curated repository of your professional digital captures and high-fidelity assets.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2.5 bg-surface-container-high/40 border border-white/5 rounded-lg hover:bg-white/10 transition-all text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+</button>
+<button class="p-2.5 bg-surface-container-high/40 border border-white/5 rounded-lg hover:bg-white/10 transition-all text-on-surface-variant/40">
+<span class="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+</button>
+</div>
+</div>
+<!-- Premium Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Pack 1 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJZTez9ScES8T-zIqYHZDz13wghJGujqmf0kPuK2UModq1i5fk5pH7AfgsSY7X9X99MhKTsCDqqtDF51ZieRI9OsY2GW2mNFNPx6Ej__IvdHWSe2fpsKFzQTp3re_VaNfMYUsS6KnwbZFrB-9ujZ4AFMXbdp8SHpdFRxyPcTJEfSxnGvCOJdDw6TgSK7JsJb_IIK9bugmTQu2i6x9Kv4pcUtlIsf5Nyj_mr1J83jbKz7Nk516UmWBNwDzWpdkXfx8QIZWBZ0pWhse7"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Summer Vacations</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">142 ITEMS</span>
+</div>
+</div>
+<!-- Pack 2 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4zTuAAv5ERl6vWqnjWSXJwNacLwKpGZrokjoUdvx1u8qolLC3XmAsZRZGWoEdk7yFFL6kmOKnjcqyJrZ8w3IZs86hsXPtyWZRMBQv3-I7132kKihcWvNpavm-9OqoVgxfDqSAwo72Eg2ntvd5fDJTgi-wRX1TvDxqUjT8THFd9YxI311p1_7UiATPvvSdHchmoVNYGjefzPMRK7s-zH70TCkXEtQaQHQIjAa2mZh0TZLqQFgCpltwfc0edlEKD-eBpyTN69maE6YS"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Work Assets</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">85 ITEMS</span>
+</div>
+</div>
+<!-- Pack 3 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGwN9-ePpMt-U_7TVDsMRfNTDyDvPmiu2m0ef_RwtYUGb5543VNdl83yLfJVNSb9V7-yPad3iBQMovd0rslcjl8FGXJnpmnfDTv06rjTkxoaQ-4_RzmTo-zTr5WlzpY8sMbmJAZmgqdu4NjskXoD1NDXLIw0yPCFj0xTi9mV3jd9IgWFKZeCR4Oj5Zg3VHBV2loh9TujNdKjB6GwZy1yoCk_zgkzv8Yfi1KZ9orN9rxRNBbHJ4ifqFrSnaRee-YyUlCfJQGXCaRPrR"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Photography</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">23 ITEMS</span>
+</div>
+</div>
+<!-- Pack 4 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLb7GNIwWQ8UvHKH_W6kkzWANoP0c8y1Ld8SUHtt2J4tBWzj48t04tCb4gZ_sNU1xDdDYdzv8oUE16UBtcvPW20PWYEoh_cEK9Bu3kudY_vLJSd42gU8GPqHmlmLY3bpyEQJjD3nElGyFow9AuyzDQwS36a8UwivjudECNe3N-OK5EzszsE1QJBfPMOQy5agCu8l5RMuiICsaHIhSx43wEjkHqEFvP0Gg5yrCmOq7dHZjAW-eHuNo3TvhksHKlg9wVcbet6trqI-JL"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Nature Edits</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">64 ITEMS</span>
+</div>
+</div>
+<!-- Pack 5 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeC1_OJlXMyBnkrwv6cpXBeZUPkF-e-uNTFTSiq8qD0lqtOV1FiecV6gtaRwiqT0DTokAHXGaVL5qMFqXCW41xUj4Z4iJn0yPU1PaBle_mXA4BlO8543kt-64iDqDDfx_0uBb9fMsCBYeVLCBuH9QNEsjpf0nO-IWAUh3yJbOLPWzm78I8srYbl3PEKF7UwAQV1mwWdVni-mYlZQzWDaBKSs1RBp6_R_0xV1VzWI8tDBWdY0AQDeJgI_b7KVaM5bctoKdr7xCrvCZ9"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Tech Specs</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">312 ITEMS</span>
+</div>
+</div>
+<!-- Pack 6 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaKU_4b3HqrnxEew0Mcbm-DkVIcLLZ795-i3EtGU2bnrw2DaKmdDFYTtat_6d5jZb3gHznWreOyDjwTT5OwTsi8dU2TqCn3zwzB3Q7QeZ1lfKmp_emRHWlGAqg0cb-5rkz8G814qc4vRMJ32nj1kfRcX_r8KvtmO2ZYIa23ov0_Lp_n_eKPqU0txccKlbBJX6hHYeJc3zWKsjLc2d-W7rMYEGCWIuJzlDHlg3LcipOpcXGELSvVByK3X6vS7XZBRNZR30G5vMYeIUS"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Architecture</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">19 ITEMS</span>
+</div>
+</div>
+<!-- Pack 7 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container premium-shadow transition-all duration-500">
+<img class="w-full h-full object-cover transition-transform duration-700 image-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR3azNsdDWfIOt5N4By3DAYdws3-bwFPvzOQknkzJJE_IOrXTfi13SH46gkLrdBqqD0jZIKnvcgzO9NcEtyRrcoiXcAS-yuL8zHgNMqlni3XtAdhm8fXHlVBDOcP3aSNR5y0D2R44rMj1pZ756hHZj8ySMv6AyYNQVqOKfXaBBNJ94BUU4Yx7DccyfYwl7rfsR4LRy8FAHhOK2eFY4Ckuga7rNGuKwVRi3CfK94mcHaQd2jPjRi_eDssXx2PIw5yGSJ99qYchIXidi"/>
+<div class="view-overlay absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center">
+<button class="bg-primary text-on-primary text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">Open Archive</button>
+</div>
+</div>
+<div class="mt-5 flex justify-between items-center px-1">
+<h4 class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors">Green Life</h4>
+<span class="font-label-sm text-[10px] text-primary/70 border border-primary/20 px-2 py-0.5 rounded-full">92 ITEMS</span>
+</div>
+</div>
+<!-- Pack 8 / Add New -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/5 bg-white/[0.02] premium-shadow transition-all duration-500 group-hover:bg-white/[0.04]">
+<div class="w-full h-full flex items-center justify-center">
+<div class="text-center group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-5xl text-primary/30 group-hover:text-primary transition-colors">add_circle_outline</span>
+<p class="mt-4 font-label-sm text-on-surface-variant/40 group-hover:text-primary transition-colors tracking-widest uppercase text-[10px]">Create Folder</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination Footer -->
+<footer class="fixed bottom-0 right-0 left-[280px] h-20 bg-background/80 backdrop-blur-xl flex items-center justify-center gap-4 z-40 border-t border-white/5">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 transition-all text-on-surface-variant/40 hover:text-on-surface">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-on-primary font-bold shadow-lg shadow-primary/20">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant/60 hover:text-on-surface hover:bg-white/5 transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant/60 hover:text-on-surface hover:bg-white/5 transition-all">3</button>
+<span class="px-2 text-on-surface-variant/20 italic font-serif">...</span>
+</div>
+<button class="flex items-center gap-2 pl-4 pr-6 h-10 rounded-full hover:bg-white/5 transition-all text-sm font-medium text-on-surface-variant/60 hover:text-on-surface">
+            Next Sequence
+            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</footer>
+</main>
+<script>
+    // Subtle Scroll and Header Effects
+    const mainContent = document.querySelector('main > div');
+    const header = document.querySelector('header');
+    
+    mainContent.addEventListener('scroll', () => {
+        if (mainContent.scrollTop > 20) {
+            header.classList.add('bg-background/80', 'backdrop-blur-xl', 'border-b', 'border-white/5');
+            header.classList.remove('bg-transparent');
+        } else {
+            header.classList.remove('bg-background/80', 'backdrop-blur-xl', 'border-b', 'border-white/5');
+            header.classList.add('bg-transparent');
+        }
+    });
+
+    // Prevent default for empty links
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if(link.getAttribute('href') === '#') e.preventDefault();
+        });
+    });
+</script>
+</body></html>

@@ -67,97 +67,94 @@ export const PackItem: Component<IProps> = (props) => {
       aria-label={props.info.title}
       onKeyDown={(e) => e.key === 'Enter' && handleClick()}
       onClick={handleClick}
-      class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-stone-100 cursor-pointer
-        transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200
-        focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-2
-        animate-fade-in"
-      classList={{
-        'ring-2 ring-accent-violet': signalStore.isManaging() && selected(),
-        'ring-1 ring-stone-200': signalStore.isManaging() && !selected(),
-      }}
+      class="group cursor-pointer animate-fade-in"
     >
-      <Show when={signalStore.isManaging()}>
-        <Checkbox
-          class="absolute left-3 top-3 z-10"
-          checked={selected()}
-          disabled={!!props.info.parent}
-          handleChanged={(v) => setSelected(v)}
-        />
-      </Show>
-
-      <Show
-        when={!err()}
-        fallback={
-          <div class="w-full h-full flex flex-col items-center justify-center gap-2 text-stone-300">
-            <svg
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="M21 15l-5-5L5 21" />
-            </svg>
-            <span class="text-xs">Unable to load</span>
-          </div>
-        }
-      >
-        <img
-          src={getLegalUrl(prop.src)}
-          alt={props.info.title}
-          onLoad={() => setImgLoaded(true)}
-          onError={() => setErr(true)}
-          class="w-full h-full object-cover transition-all duration-500
-            group-hover:scale-105"
-          classList={{ 'opacity-0': !imgLoaded() }}
-        />
-        {!imgLoaded() && <div class="absolute inset-0 skeleton" />}
-      </Show>
-
       <div
-        class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t via-black/20 to-transparent transition-colors duration-300"
+        class="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-high premium-shadow transition-all duration-500"
         classList={{
-          'from-black/50': !signalStore.isManaging(),
-          'from-violet-600/50': signalStore.isManaging(),
-          'via-violet-600/20': signalStore.isManaging(),
-          'via-black/20': !signalStore.isManaging(),
+          'ring-2 ring-primary': signalStore.isManaging() && selected(),
+          'ring-1 ring-surface-container-highest':
+            signalStore.isManaging() && !selected(),
         }}
       >
-        <div class="flex items-center justify-between gap-2">
-          <span
-            class="text-sm text-white font-medium truncate flex-1"
-            title={props.info.title}
-          >
-            {props.info.title}
-          </span>
-          <button
-            aria-label={prop.info.stared ? 'Unstar' : 'Star'}
-            onClick={(e) => {
-              e.stopPropagation();
-              props.onStar?.(e);
-            }}
-            class="shrink-0 btn-press focus-visible:ring-2 focus-visible:ring-accent-violet rounded-full"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill={prop.info.stared ? '#f59e0b' : 'none'}
-              stroke={prop.info.stared ? '#f59e0b' : 'white'}
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="transition-all duration-300 hover:scale-110 drop-shadow-sm"
-            >
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
+        <Show when={signalStore.isManaging()}>
+          <Checkbox
+            class="absolute left-3 top-3 z-10"
+            checked={selected()}
+            disabled={!!props.info.parent}
+            handleChanged={(v) => setSelected(v)}
+          />
+        </Show>
+
+        <Show
+          when={!err()}
+          fallback={
+            <div class="w-full h-full flex flex-col items-center justify-center gap-2 text-on-surface-variant/40">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <path d="M21 15l-5-5L5 21" />
+              </svg>
+              <span class="text-xs">Unable to load</span>
+            </div>
+          }
+        >
+          <img
+            src={getLegalUrl(prop.src)}
+            alt={props.info.title}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setErr(true)}
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            classList={{ 'opacity-0': !imgLoaded() }}
+          />
+          {!imgLoaded() && <div class="absolute inset-0 skeleton" />}
+        </Show>
+
+        <div class="absolute inset-0 bg-background/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center">
+          <button class="bg-primary text-on-primary font-body-md text-sm font-semibold py-2 px-8 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105">
+            Open Archive
           </button>
         </div>
+      </div>
+
+      <div class="mt-5 flex justify-between items-center px-1">
+        <h4
+          class="font-body-lg text-lg font-semibold text-on-surface group-hover:text-primary transition-colors truncate flex-1 mr-2"
+          title={props.info.title}
+        >
+          {props.info.title}
+        </h4>
+        <button
+          aria-label={prop.info.stared ? 'Unstar' : 'Star'}
+          onClick={(e) => {
+            e.stopPropagation();
+            props.onStar?.(e);
+          }}
+          class="shrink-0 btn-press"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill={prop.info.stared ? '#f59e0b' : 'none'}
+            stroke={prop.info.stared ? '#f59e0b' : '#918fa1'}
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="transition-all duration-300 hover:scale-110"
+          >
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+        </button>
       </div>
     </div>
   );

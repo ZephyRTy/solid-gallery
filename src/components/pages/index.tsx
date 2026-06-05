@@ -18,13 +18,13 @@ const getTitle = (mode: Mode, search?: string) => {
   let title = '';
   switch (mode) {
     case Mode.Normal:
-      title = 'Gallery';
+      title = 'My Library';
       break;
     case Mode.Star:
       title = 'Starred';
       break;
     default:
-      title = 'Gallery';
+      title = 'My Library';
   }
   return search ? `${search} — ${title}` : title;
 };
@@ -84,7 +84,7 @@ export const IndexPage: Component = () => {
 
   return (
     <div
-      class="flex-1 flex flex-col min-h-0 overflow-hidden"
+      class="flex-1 flex flex-col min-h-0"
       onDragEnter={(e) => {
         signalStore.fileDropVisible.set(true);
         e.preventDefault();
@@ -101,21 +101,29 @@ export const IndexPage: Component = () => {
     >
       <FileDrop />
 
-      <h2 class="px-8 pt-8 pb-4 text-4xl tracking-tight font-semibold text-stone-800">
-        {signalStore.title()}
-      </h2>
+      <div class="mb-14 flex items-end justify-between border-b border-white/5 pb-8">
+        <div>
+          <h3 class="font-display-lg text-[42px] leading-tight text-on-surface mb-2">
+            {signalStore.title()}
+          </h3>
+          <p class="font-body-md text-on-surface-variant/60 max-w-md">
+            The curated repository of your professional digital captures and
+            high-fidelity assets.
+          </p>
+        </div>
+      </div>
 
-      <div ref={scrollRef} class="flex-1 overflow-auto px-8 pb-4">
+      <div ref={scrollRef} class="flex-1 overflow-auto">
         <Show when={isLoading()}>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {Array.from({ length: 8 }).map(() => (
-              <div class="aspect-[3/4] rounded-xl skeleton" />
+              <div class="aspect-[4/3] rounded-xl skeleton" />
             ))}
           </div>
         </Show>
 
         <Show when={!isLoading() && packList().length === 0}>
-          <div class="flex flex-col items-center justify-center py-20 text-stone-300">
+          <div class="flex flex-col items-center justify-center py-20 text-on-surface-variant/40">
             <svg
               width="64"
               height="64"
@@ -130,7 +138,7 @@ export const IndexPage: Component = () => {
               <circle cx="8.5" cy="8.5" r="1.5" />
               <path d="M21 15l-5-5L5 21" />
             </svg>
-            <p class="mt-4 text-lg">
+            <p class="mt-4 font-body-md text-lg">
               {search()
                 ? `No results for "${search()}"`
                 : 'No packs yet. Drag & drop a folder to get started.'}
@@ -138,7 +146,7 @@ export const IndexPage: Component = () => {
           </div>
         </Show>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <For each={packList()}>
             {(e, index) => (
               <PackItem

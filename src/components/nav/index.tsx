@@ -51,17 +51,17 @@ export const Nav: Component<IProps> = (props) => {
   };
 
   const pageBtn =
-    'w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 hover:bg-stone-200 btn-press';
+    'w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-white/5 btn-press';
 
   return (
-    <nav
-      class="h-12 shrink-0 flex items-center justify-center gap-1 px-4 border-t border-stone-200 bg-white"
+    <footer
+      class="fixed bottom-0 right-0 left-[280px] h-20 glass-footer flex items-center justify-center gap-2 z-40"
       aria-label="Pagination"
     >
       <button
         aria-label="First page"
         onClick={() => goTo(1)}
-        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        class={pageBtn + ' text-on-surface-variant/40 hover:text-on-surface'}
         disabled={curPage() <= 1}
       >
         <svg
@@ -81,7 +81,7 @@ export const Nav: Component<IProps> = (props) => {
       <button
         aria-label="Previous page"
         onClick={() => goTo(curPage() - 1)}
-        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        class={pageBtn + ' text-on-surface-variant/40 hover:text-on-surface'}
         disabled={curPage() <= 1}
       >
         <svg
@@ -97,25 +97,30 @@ export const Nav: Component<IProps> = (props) => {
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
-      <For each={pageNumList()}>
-        {(n) => (
-          <button
-            onClick={() => goTo(n)}
-            class={pageBtn}
-            classList={{
-              'bg-accent-violet text-white hover:bg-violet-600':
-                curPage() === n,
-              'text-stone-500': curPage() !== n,
-            }}
-          >
-            {n}
-          </button>
-        )}
-      </For>
+
+      <div class="flex items-center gap-1">
+        <For each={pageNumList()}>
+          {(n) => (
+            <button
+              onClick={() => goTo(n)}
+              class={pageBtn + ' font-body-md text-sm'}
+              classList={{
+                'bg-primary text-on-primary font-bold shadow-lg shadow-primary/20':
+                  curPage() === n,
+                'text-on-surface-variant/60 hover:text-on-surface':
+                  curPage() !== n,
+              }}
+            >
+              {n}
+            </button>
+          )}
+        </For>
+      </div>
+
       <button
         aria-label="Next page"
         onClick={() => goTo(curPage() + 1)}
-        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        class={pageBtn + ' text-on-surface-variant/40 hover:text-on-surface'}
         disabled={curPage() >= prop.total}
       >
         <svg
@@ -134,7 +139,7 @@ export const Nav: Component<IProps> = (props) => {
       <button
         aria-label="Last page"
         onClick={() => goTo(prop.total)}
-        class={pageBtn + ' text-stone-400 hover:text-stone-700'}
+        class={pageBtn + ' text-on-surface-variant/40 hover:text-on-surface'}
         disabled={curPage() >= prop.total}
       >
         <svg
@@ -152,8 +157,7 @@ export const Nav: Component<IProps> = (props) => {
         </svg>
       </button>
 
-      {/* Quick jump */}
-      <div class="ml-2 flex items-center">
+      <div class="ml-3 flex items-center">
         <Show
           when={editing()}
           fallback={
@@ -163,7 +167,7 @@ export const Nav: Component<IProps> = (props) => {
                 setJumpValue(String(curPage()));
                 setTimeout(() => jumpInput?.focus(), 50);
               }}
-              class="text-xs text-stone-400 hover:text-stone-600 transition-colors cursor-pointer tabular-nums"
+              class="font-body-md text-xs text-on-surface-variant/40 hover:text-on-surface-variant/70 transition-colors cursor-pointer tabular-nums"
               title="点击跳转"
             >
               {curPage()} / {prop.total}
@@ -189,13 +193,15 @@ export const Nav: Component<IProps> = (props) => {
                 setEditing(false);
                 setJumpValue('');
               }}
-              class="w-12 h-7 px-2 rounded-lg border border-accent-violet outline-none text-xs text-center text-stone-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              class="w-12 h-7 px-2 rounded-lg border border-primary/40 bg-surface-container-high text-on-surface outline-none text-xs text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autofocus
             />
-            <span class="text-xs text-stone-300">/ {prop.total}</span>
+            <span class="font-body-md text-xs text-on-surface-variant/40">
+              / {prop.total}
+            </span>
           </div>
         </Show>
       </div>
-    </nav>
+    </footer>
   );
 };

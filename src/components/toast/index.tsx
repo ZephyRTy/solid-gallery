@@ -38,7 +38,8 @@ export const ToastComponent: Component<IProps> = (props) => {
       aria-live="polite"
       class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg transition-all duration-300 animate-slide-up"
       classList={{
-        'bg-white text-stone-800': isSuccess(),
+        'bg-surface-container-high text-on-surface border border-outline-variant/20':
+          isSuccess(),
         'bg-accent-rose text-white': !isSuccess(),
         'opacity-0 translate-y-2': !visible(),
       }}

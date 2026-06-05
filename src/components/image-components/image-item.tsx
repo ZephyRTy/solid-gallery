@@ -14,8 +14,8 @@ interface IProps {
 export const ImageItem: Component<IProps> = (props) => {
   return (
     <div
-      class="group relative aspect-square rounded-xl overflow-hidden bg-stone-100 cursor-pointer
-        animate-fade-in focus-visible:ring-2 focus-visible:ring-accent-violet focus-visible:ring-offset-2"
+      class="group relative aspect-square rounded-xl overflow-hidden bg-surface-container-high cursor-pointer
+        animate-fade-in focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       role="button"
       tabIndex={0}
       aria-label={`Image ${props.index + 1}`}
@@ -44,10 +44,9 @@ export const ImageItem: Component<IProps> = (props) => {
       <img
         src={props.src}
         alt={`Image ${props.index + 1}`}
-        class="w-full h-full object-cover transition-all duration-500
-          group-hover:scale-105 group-hover:shadow-lg"
+        class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
       />
-      <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/40 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-background/60 text-on-surface-variant text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 font-label-sm">
         {props.index + 1}
       </div>
     </div>

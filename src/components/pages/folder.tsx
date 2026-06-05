@@ -54,7 +54,7 @@ export const FolderPage: Component = () => {
   });
 
   return (
-    <div class="flex flex-1 h-full overflow-hidden">
+    <div class="flex flex-1 h-full min-h-0">
       <FolderList
         currentDir={currentDir}
         setCurrentDir={setCurrentDir}
@@ -69,18 +69,18 @@ export const FolderPage: Component = () => {
       />
       <div class="flex-1 overflow-auto p-6" ref={scrollRef}>
         <Show when={isLoading()}>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
             {Array.from({ length: 6 }).map(() => (
-              <div class="aspect-[3/4] rounded-xl skeleton" />
+              <div class="aspect-[4/3] rounded-xl skeleton" />
             ))}
           </div>
         </Show>
         <Show when={!isLoading() && packList.length === 0}>
-          <div class="flex flex-col items-center justify-center py-20 text-stone-300">
-            <p class="text-lg">此文件夹为空</p>
+          <div class="flex flex-col items-center justify-center py-20 text-on-surface-variant/40">
+            <p class="font-body-md text-lg">Folder is empty</p>
           </div>
         </Show>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
           <For each={packList}>
             {(e, index) => (
               <PackItem

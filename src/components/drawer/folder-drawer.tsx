@@ -62,20 +62,20 @@ export const FolderDrawer: Component = () => {
 
   return (
     <Show when={signalStore.drawerVisible()}>
-      {/* Light overlay — click to close */}
       <div class="fixed inset-0 z-modal bg-transparent" onClick={handleClose} />
       <div
         role="dialog"
         aria-label="Select folder"
-        class="fixed right-0 top-0 bottom-0 z-modal w-80 bg-white shadow-2xl flex flex-col animate-slide-in-right"
+        class="fixed right-0 top-0 bottom-0 z-modal w-80 glass-sidebar shadow-2xl flex flex-col animate-slide-in-right"
       >
-        {/* Header */}
-        <div class="flex items-center justify-between px-5 h-14 border-b border-stone-100">
-          <span class="text-sm font-semibold text-stone-800">移动到文件夹</span>
+        <div class="flex items-center justify-between px-5 h-14 border-b border-outline-variant/10">
+          <span class="font-body-md text-sm font-semibold text-on-surface">
+            Move to Folder
+          </span>
           <button
             aria-label="Close drawer"
             onClick={handleClose}
-            class="w-8 h-8 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+            class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant/40 hover:text-on-surface hover:bg-white/5 transition-colors"
           >
             <svg
               width="18"
@@ -92,34 +92,33 @@ export const FolderDrawer: Component = () => {
           </button>
         </div>
 
-        {/* Search + Create */}
-        <div class="p-4 border-b border-stone-100 flex items-center gap-2">
-          <div class="flex-1 flex items-center h-10 px-3 rounded-lg bg-stone-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-accent-violet transition-all">
+        <div class="p-4 border-b border-outline-variant/10 flex items-center gap-2">
+          <div class="flex-1 flex items-center h-10 px-3 rounded-lg bg-surface-container-high/40 focus-within:bg-surface-container-high/60 focus-within:ring-1 focus-within:ring-primary/40 transition-all">
             <svg
               width="16"
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#a8a29e"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="mr-2 shrink-0"
+              class="mr-2 shrink-0 text-on-surface-variant/40"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.3-4.3" />
             </svg>
             <input
-              placeholder="筛选文件夹..."
+              placeholder="Filter folders..."
               value={searchText()}
               onInput={(e) => setSearchText(e.currentTarget.value)}
-              class="flex-1 bg-transparent outline-none text-sm text-stone-800 placeholder-stone-300"
+              class="flex-1 bg-transparent outline-none text-sm text-on-surface placeholder-on-surface-variant/30 font-body-md"
             />
           </div>
           <button
             aria-label="Create new folder"
             onClick={() => setAddingDir(true)}
-            class="w-10 h-10 flex items-center justify-center rounded-lg text-stone-400 hover:text-accent-violet hover:bg-stone-100 transition-colors btn-press"
+            class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant/40 hover:text-primary hover:bg-white/5 transition-colors btn-press"
           >
             <svg
               width="20"
@@ -136,35 +135,33 @@ export const FolderDrawer: Component = () => {
           </button>
         </div>
 
-        {/* Inline new folder input */}
         <Show when={addingDir()}>
-          <div class="flex items-center gap-2 px-4 py-2 border-b border-stone-100">
+          <div class="flex items-center gap-2 px-4 py-2 border-b border-outline-variant/10">
             <input
               ref={inputRef}
-              placeholder="文件夹名称"
+              placeholder="Folder name"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAddDir();
                 if (e.key === 'Escape') setAddingDir(false);
               }}
-              class="flex-1 h-10 px-3 rounded-lg border border-accent-violet outline-none text-sm"
+              class="flex-1 h-10 px-3 rounded-lg border border-primary/40 bg-surface-container-high text-on-surface outline-none text-sm font-body-md"
               autofocus
             />
             <button
               onClick={handleAddDir}
-              class="text-sm text-accent-violet font-medium hover:text-violet-600 px-2"
+              class="text-sm text-primary font-medium hover:brightness-110 px-2 font-body-md"
             >
-              添加
+              Add
             </button>
             <button
               onClick={() => setAddingDir(false)}
-              class="text-sm text-stone-400 hover:text-stone-600 px-2"
+              class="text-sm text-on-surface-variant/40 hover:text-on-surface-variant/70 px-2 font-body-md"
             >
-              取消
+              Cancel
             </button>
           </div>
         </Show>
 
-        {/* Folder list */}
         <div class="flex-1 overflow-auto scrollbar-custom px-1 py-2">
           <Show
             when={filtered().length === 0}
@@ -174,11 +171,12 @@ export const FolderDrawer: Component = () => {
                   {(item) => (
                     <li>
                       <button
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-all duration-200 hover:bg-stone-100"
+                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-all duration-200 hover:bg-white/[0.03]"
                         classList={{
-                          'bg-violet-50 text-accent-violet':
+                          'bg-primary/10 text-primary':
                             selectedDir() === item.id,
-                          'text-stone-700': selectedDir() !== item.id,
+                          'text-on-surface-variant/70':
+                            selectedDir() !== item.id,
                         }}
                         onClick={() =>
                           setSelectedDir(
@@ -198,10 +196,10 @@ export const FolderDrawer: Component = () => {
                         >
                           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                         </svg>
-                        <span class="flex-1 truncate text-sm font-medium">
+                        <span class="flex-1 truncate text-sm font-medium font-body-md">
                           {item.title}
                         </span>
-                        <span class="text-xs text-stone-300 tabular-nums">
+                        <span class="font-label-sm text-xs text-on-surface-variant/40 tabular-nums">
                           {item.count}
                         </span>
                       </button>
@@ -211,17 +209,18 @@ export const FolderDrawer: Component = () => {
               </ul>
             }
           >
-            <p class="text-center text-sm text-stone-300 py-8">暂无文件夹</p>
+            <p class="text-center text-sm text-on-surface-variant/30 py-8 font-body-md">
+              No folders yet
+            </p>
           </Show>
         </div>
 
-        {/* Footer */}
-        <div class="flex border-t border-stone-100">
+        <div class="flex border-t border-outline-variant/10">
           <button
             onClick={handleClose}
-            class="flex-1 h-12 text-sm text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+            class="flex-1 h-12 text-sm text-on-surface-variant/60 hover:text-on-surface hover:bg-white/5 transition-colors font-body-md"
           >
-            取消
+            Cancel
           </button>
           <button
             onClick={() => {
@@ -235,10 +234,10 @@ export const FolderDrawer: Component = () => {
                   signalStore.refresh.set((v) => !v);
                 });
             }}
-            class="flex-1 h-12 text-sm font-medium text-white bg-accent-violet hover:bg-violet-600 transition-colors disabled:opacity-40"
+            class="flex-1 h-12 text-sm font-semibold text-on-primary bg-primary hover:brightness-110 transition-all disabled:opacity-40 font-body-md"
             disabled={!selectedDir()}
           >
-            移动到此文件夹
+            Move Here
           </button>
         </div>
       </div>

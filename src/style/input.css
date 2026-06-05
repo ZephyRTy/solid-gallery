@@ -7,9 +7,13 @@
     overflow: hidden;
   }
 
+  body {
+    font-family: 'Manrope', 'Microsoft YaHei', system-ui, sans-serif;
+    color: #dae2fd;
+  }
+
   * {
     @apply select-none;
-    font-family: 'Microsoft YaHei', system-ui, sans-serif;
   }
 
   ::-webkit-scrollbar {
@@ -18,12 +22,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #d6d3d1;
+    background: #464555;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #a8a29e;
+    background: #918fa1;
   }
 
   ::-webkit-scrollbar-track {
@@ -32,24 +36,111 @@
 
   :focus-visible:not(input):not(textarea) {
     outline: none;
-    box-shadow: 0 0 0 2px #8b5cf6;
+    box-shadow: 0 0 0 2px #c3c0ff;
     border-radius: 4px;
   }
 }
 
 @layer components {
   .skeleton {
-    @apply bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200 bg-[length:200%_100%] animate-shimmer rounded-md;
+    @apply bg-gradient-to-r from-surface-container-high via-surface-container-highest to-surface-container-high bg-[length:200%_100%] animate-shimmer rounded-md;
   }
 
   .glass {
-    @apply bg-white/80 backdrop-blur-md;
+    @apply bg-surface-container-low/70 backdrop-blur-md border border-white/[0.08];
+  }
+
+  .glass-sidebar {
+    background: rgba(19, 27, 46, 0.7);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(199, 196, 216, 0.08);
+  }
+
+  .glass-topbar {
+    background: rgba(11, 19, 38, 0.8);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-footer {
+    background: rgba(11, 19, 38, 0.8);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-active {
+    background: linear-gradient(
+      90deg,
+      rgba(195, 192, 255, 0.1) 0%,
+      transparent 100%
+    );
+    color: #c3c0ff;
+    border-left: 2px solid #c3c0ff;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  .premium-shadow:hover {
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  }
+
+  .scroll-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .btn-press {
     @apply active:scale-95 transition-transform duration-100;
   }
+
+  .image-card-hover:hover .view-overlay {
+    opacity: 1;
+  }
+  .image-card-hover:hover .image-zoom {
+    transform: scale(1.03);
+  }
 }
+
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes border-rotate {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  border-radius: 12px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #4f46e5,
+    #c3c0ff,
+    #6bd8cb,
+    #4f46e5
+  );
+  animation: border-rotate 6s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
 
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
